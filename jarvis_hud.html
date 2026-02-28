@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>B.L.I.T.Z. — CEO Command Center</title>
+<meta name="description" content="Jarvis-grade CEO intelligence dashboard with real-time KPIs, OKRs, competitive intel, and voice control">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#06070d;--bg2:#0a0c16;--surface:rgba(255,255,255,.04);
+  --border:rgba(255,255,255,.08);--border2:rgba(255,255,255,.14);
+  --text:#eef0ff;--muted:rgba(255,255,255,.45);--faint:rgba(255,255,255,.06);
+  --accent:#818cf8;--green:#34d399;--red:#f87171;--amber:#fbbf24;--blue:#60a5fa;--cyan:#22d3ee;
+  --font:'Inter',system-ui,sans-serif;--mono:'JetBrains Mono',monospace;
+  --glow:rgba(129,140,248,.15);
+}
+html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-family:var(--font);color:var(--text);-webkit-font-smoothing:antialiased}
+body::after{content:'';position:fixed;inset:0;z-index:9999;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.012) 2px,rgba(0,0,0,.012) 4px);pointer-events:none}
+
+.bg-mesh{position:fixed;inset:0;z-index:0;background:
+  radial-gradient(ellipse 60% 50% at 10% 90%,rgba(99,102,241,.1),transparent 60%),
+  radial-gradient(ellipse 50% 40% at 90% 10%,rgba(34,211,238,.07),transparent 60%),
+  radial-gradient(ellipse 40% 30% at 50% 50%,rgba(6,7,13,.9),transparent 70%)}
+.bg-grid{position:fixed;inset:0;z-index:0;background-image:linear-gradient(rgba(255,255,255,.015) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.015) 1px,transparent 1px);background-size:48px 48px;mask-image:radial-gradient(ellipse 80% 70% at 50% 50%,black 30%,transparent 100%)}
+
+/* LAYOUT */
+.app{position:relative;z-index:1;width:100vw;height:100vh;display:grid;grid-template-rows:48px 1fr;grid-template-columns:220px 1fr 320px;overflow:hidden}
+
+/* TOPBAR */
+.topbar{grid-column:1/-1;display:flex;align-items:center;gap:14px;padding:0 20px;border-bottom:1px solid var(--border);background:rgba(10,12,22,.85);backdrop-filter:blur(24px);z-index:10}
+.tb-logo{display:flex;align-items:center;gap:8px}
+.tb-orb{width:22px;height:22px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff,rgba(129,140,248,.6) 60%,transparent);border:1px solid rgba(255,255,255,.3);box-shadow:0 0 20px var(--glow);animation:orb-pulse 3s ease-in-out infinite}
+@keyframes orb-pulse{0%,100%{box-shadow:0 0 15px var(--glow)}50%{box-shadow:0 0 35px rgba(129,140,248,.3)}}
+.tb-name{font-size:14px;font-weight:800;letter-spacing:-.02em}
+.tb-ver{font-family:var(--mono);font-size:9px;color:var(--muted);letter-spacing:.1em}
+.tb-sep{width:1px;height:14px;background:var(--border)}
+.tb-mode{font-family:var(--mono);font-size:10px;font-weight:600;color:var(--accent);letter-spacing:.12em;text-transform:uppercase}
+.tb-time{font-family:var(--mono);font-size:11px;color:var(--muted);margin-left:auto}
+.tb-btn{padding:5px 12px;border-radius:8px;font-family:var(--mono);font-size:10px;font-weight:600;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;transition:.2s;letter-spacing:.04em}
+.tb-btn:hover{border-color:var(--accent);color:var(--text);background:rgba(129,140,248,.08)}
+.tb-btn.active{border-color:var(--accent);color:var(--accent);background:rgba(129,140,248,.1)}
+
+/* SIDEBAR */
+.sidebar{display:flex;flex-direction:column;border-right:1px solid var(--border);background:rgba(255,255,255,.015);backdrop-filter:blur(20px);overflow:hidden}
+.sb-section{padding:14px 12px 8px}
+.sb-label{font-family:var(--mono);font-size:8.5px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.sb-item{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:8px;font-size:12px;font-weight:500;color:var(--muted);cursor:pointer;transition:.15s;margin-bottom:2px}
+.sb-item:hover{background:var(--faint);color:var(--text)}
+.sb-item.active{background:rgba(129,140,248,.1);color:var(--text);border-left:2px solid var(--accent)}
+.sb-icon{font-size:14px;width:20px;text-align:center}
+.sb-badge{margin-left:auto;font-family:var(--mono);font-size:8px;padding:2px 6px;border-radius:8px;background:rgba(248,113,113,.15);color:var(--red)}
+.sb-badge.green{background:rgba(52,211,153,.12);color:var(--green)}
+.sb-scroll{flex:1;overflow-y:auto;overflow-x:hidden}
+.sb-scroll::-webkit-scrollbar{width:3px}
+.sb-scroll::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+
+/* MAIN CONTENT */
+.main-content{overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:16px}
+.main-content::-webkit-scrollbar{width:4px}
+.main-content::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+
+/* RIGHT PANEL */
+.right-panel{border-left:1px solid var(--border);background:rgba(255,255,255,.012);display:flex;flex-direction:column;overflow:hidden}
+.rp-section{padding:14px 16px;border-bottom:1px solid var(--border)}
+.rp-title{font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
+.rp-scroll{flex:1;overflow-y:auto;padding:0}
+.rp-scroll::-webkit-scrollbar{width:3px}
+.rp-scroll::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+
+/* CARDS */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px;transition:.2s}
+.card:hover{border-color:var(--border2);background:rgba(255,255,255,.055)}
+.card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.card-title{font-size:12px;font-weight:700;letter-spacing:.02em}
+.card-badge{font-family:var(--mono);font-size:9px;padding:3px 8px;border-radius:8px;background:rgba(129,140,248,.1);color:var(--accent)}
+
+/* KPI ROW */
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.kpi{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px;text-align:center;transition:.3s}
+.kpi:hover{border-color:var(--border2);transform:translateY(-1px)}
+.kpi-label{font-family:var(--mono);font-size:9px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px}
+.kpi-value{font-size:26px;font-weight:800;letter-spacing:-.03em;line-height:1}
+.kpi-change{font-family:var(--mono);font-size:10px;margin-top:5px}
+.kpi-change.up{color:var(--green)}
+.kpi-change.down{color:var(--red)}
+.kpi-change.flat{color:var(--muted)}
+
+/* OKR BARS */
+.okr-item{margin-bottom:12px}
+.okr-header{display:flex;justify-content:space-between;margin-bottom:5px}
+.okr-name{font-size:11.5px;font-weight:600}
+.okr-pct{font-family:var(--mono);font-size:11px;font-weight:700}
+.okr-bar{height:6px;border-radius:3px;background:var(--faint);overflow:hidden}
+.okr-fill{height:100%;border-radius:3px;transition:width .6s ease}
+.okr-status{font-family:var(--mono);font-size:9px;margin-top:3px}
+
+/* PROMISE LIST */
+.promise-item{display:flex;align-items:flex-start;gap:8px;padding:8px 0;border-bottom:1px solid var(--faint)}
+.promise-dot{width:6px;height:6px;border-radius:50%;margin-top:5px;flex-shrink:0}
+.promise-dot.open{background:var(--amber)}
+.promise-dot.overdue{background:var(--red);box-shadow:0 0 6px rgba(248,113,113,.4)}
+.promise-text{font-size:11px;color:var(--text);line-height:1.4}
+.promise-meta{font-family:var(--mono);font-size:9px;color:var(--muted);margin-top:2px}
+
+/* DIGEST PANEL */
+.digest-text{font-size:12.5px;line-height:1.65;color:var(--text);white-space:pre-wrap}
+
+/* COMPETITOR CARD */
+.comp-item{padding:10px 0;border-bottom:1px solid var(--faint)}
+.comp-name{font-size:11px;font-weight:700;color:var(--text)}
+.comp-intel{font-size:10.5px;color:var(--muted);line-height:1.5;margin-top:4px}
+
+/* CONTACT CARD */
+.contact-item{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--faint)}
+.contact-avatar{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--cyan));display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0}
+.contact-info{flex:1;min-width:0}
+.contact-name{font-size:11px;font-weight:600}
+.contact-role{font-family:var(--mono);font-size:9px;color:var(--muted)}
+
+/* VOICE ORB (bottom right) */
+.voice-orb-wrap{position:fixed;bottom:24px;right:344px;z-index:100}
+.voice-orb{width:52px;height:52px;border-radius:50%;background:radial-gradient(circle at 35% 30%,rgba(255,255,255,.95),rgba(129,140,248,.5) 60%,rgba(99,102,241,.2));border:1.5px solid rgba(255,255,255,.35);box-shadow:0 4px 30px var(--glow);cursor:pointer;transition:.3s;display:flex;align-items:center;justify-content:center;font-size:18px}
+.voice-orb:hover{transform:scale(1.08);box-shadow:0 4px 40px rgba(129,140,248,.3)}
+.voice-orb.listening{animation:voice-listen 1s ease-in-out infinite}
+@keyframes voice-listen{0%,100%{box-shadow:0 0 8px var(--glow),0 0 24px rgba(96,165,250,.15)}50%{box-shadow:0 0 20px rgba(96,165,250,.3),0 0 50px rgba(96,165,250,.15)}}
+
+/* LOADING */
+.loading{display:flex;align-items:center;gap:8px;padding:20px;color:var(--muted);font-family:var(--mono);font-size:11px}
+.spinner{width:14px;height:14px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* GRID LAYOUTS */
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+
+/* QUICK ACTION BAR */
+.quick-bar{display:flex;gap:8px;flex-wrap:wrap}
+.qa-btn{padding:6px 14px;border-radius:10px;font-size:11px;font-weight:600;border:1px solid var(--border);background:var(--surface);color:var(--text);cursor:pointer;transition:.2s;display:flex;align-items:center;gap:5px}
+.qa-btn:hover{border-color:var(--accent);background:rgba(129,140,248,.08);transform:translateY(-1px)}
+.qa-btn .icon{font-size:13px}
+
+/* CHAT INPUT */
+.chat-input-wrap{padding:12px 16px;border-top:1px solid var(--border);background:rgba(10,12,22,.6)}
+.chat-input{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:10px 14px;color:var(--text);font-family:var(--font);font-size:12px;outline:none;resize:none;transition:.2s}
+.chat-input:focus{border-color:var(--accent);background:rgba(255,255,255,.06)}
+.chat-input::placeholder{color:var(--muted)}
+
+/* EMPTY STATE */
+.empty{text-align:center;padding:30px;color:var(--muted);font-size:12px}
+.empty-icon{font-size:28px;margin-bottom:8px;opacity:.5}
+
+/* ALERT CARD */
+.alert-card{background:rgba(248,113,113,.06);border:1px solid rgba(248,113,113,.2);border-radius:12px;padding:12px 14px;margin-bottom:8px}
+.alert-card.warn{background:rgba(251,191,36,.06);border-color:rgba(251,191,36,.2)}
+.alert-card.info{background:rgba(96,165,250,.06);border-color:rgba(96,165,250,.2)}
+.alert-title{font-size:11px;font-weight:700;margin-bottom:3px}
+.alert-text{font-size:10.5px;color:var(--muted);line-height:1.4}
+
+/* WORKFLOW ITEM */
+.wf-item{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--faint)}
+.wf-icon{font-size:14px;opacity:.7}
+.wf-name{font-size:11px;font-weight:600;flex:1}
+.wf-trigger{font-family:var(--mono);font-size:9px;color:var(--muted);background:var(--faint);padding:2px 6px;border-radius:4px}
+</style>
+</head>
+<body>
+<div class="bg-mesh"></div>
+<div class="bg-grid"></div>
+
+<div class="app">
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <div class="tb-logo">
+      <div class="tb-orb"></div>
+      <span class="tb-name">B.L.I.T.Z.</span>
+      <span class="tb-ver">CEO v6.0</span>
+    </div>
+    <div class="tb-sep"></div>
+    <span class="tb-mode">Command Center</span>
+    <div class="tb-sep"></div>
+    <span id="tb-status" style="font-family:var(--mono);font-size:10px;color:var(--green)">● ONLINE</span>
+    <span class="tb-time" id="clock"></span>
+    <button class="tb-btn" onclick="loadDigest()">⟳ REFRESH</button>
+    <button class="tb-btn" onclick="location.href='/'">← MAIN</button>
+    <button class="tb-btn" onclick="genBoardBriefing()">📋 BOARD PREP</button>
+  </header>
+
+  <!-- SIDEBAR -->
+  <nav class="sidebar">
+    <div class="sb-section">
+      <div class="sb-label">Navigation</div>
+      <div class="sb-item active" onclick="showView('digest')" id="nav-digest"><span class="sb-icon">🎯</span>Digest</div>
+      <div class="sb-item" onclick="showView('financials')" id="nav-financials"><span class="sb-icon">📊</span>Financials</div>
+      <div class="sb-item" onclick="showView('okrs')" id="nav-okrs"><span class="sb-icon">🏆</span>OKRs</div>
+      <div class="sb-item" onclick="showView('promises')" id="nav-promises"><span class="sb-icon">🤝</span>Promises<span class="sb-badge" id="promise-count" style="display:none">0</span></div>
+      <div class="sb-item" onclick="showView('competitors')" id="nav-competitors"><span class="sb-icon">⚔️</span>Competitors</div>
+      <div class="sb-item" onclick="showView('contacts')" id="nav-contacts"><span class="sb-icon">👥</span>Contacts</div>
+      <div class="sb-item" onclick="showView('org')" id="nav-org"><span class="sb-icon">🏢</span>Org & Hiring</div>
+      <div class="sb-item" onclick="showView('workflows')" id="nav-workflows"><span class="sb-icon">⚙️</span>Workflows</div>
+      <div class="sb-item" onclick="showView('biometrics')" id="nav-biometrics"><span class="sb-icon">💓</span>Biometrics</div>
+      <div class="sb-item" onclick="showView('market')" id="nav-market"><span class="sb-icon">📈</span>Market Intel</div>
+    </div>
+    <div class="sb-section" style="margin-top:auto;border-top:1px solid var(--border)">
+      <div class="sb-label">Quick Links</div>
+      <div class="sb-item" onclick="location.href='/'"><span class="sb-icon">💬</span>Chat</div>
+      <div class="sb-item" onclick="location.href='/forge'"><span class="sb-icon">🔨</span>Forge</div>
+      <div class="sb-item" onclick="location.href='/nexus'"><span class="sb-icon">🧠</span>Nexus</div>
+    </div>
+  </nav>
+
+  <!-- MAIN CONTENT -->
+  <main class="main-content" id="main-content">
+    <!-- Populated by JS -->
+    <div class="loading" id="main-loading"><div class="spinner"></div>Initializing command center...</div>
+  </main>
+
+  <!-- RIGHT PANEL -->
+  <aside class="right-panel">
+    <div class="rp-section">
+      <div class="rp-title">Today's Briefing</div>
+      <div id="briefing-text" class="digest-text" style="font-size:11.5px;color:var(--muted)">Loading...</div>
+    </div>
+    <div class="rp-section">
+      <div class="rp-title">Calendar</div>
+      <div id="calendar-list" style="font-size:11px;color:var(--muted)">Loading...</div>
+    </div>
+    <div class="rp-section">
+      <div class="rp-title">Alerts</div>
+      <div id="alerts-list"></div>
+    </div>
+    <div class="rp-scroll" id="rp-tasks">
+      <div class="rp-section">
+        <div class="rp-title">Tasks</div>
+        <div id="tasks-list" style="font-size:11px;color:var(--muted)">Loading...</div>
+      </div>
+    </div>
+    <div class="chat-input-wrap">
+      <textarea class="chat-input" id="quick-cmd" rows="2" placeholder="Ask Jarvis anything..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendQuickCmd()}"></textarea>
+    </div>
+  </aside>
+</div>
+
+<div class="voice-orb-wrap">
+  <div class="voice-orb" id="voice-orb" onclick="toggleVoice()" title="Voice Command">🎙</div>
+</div>
+
+<script>
+const TOKEN = localStorage.getItem('blitz_token') || '';
+const H = {'Content-Type':'application/json','Authorization':'Bearer '+TOKEN};
+let currentView = 'digest';
+
+// Auth check
+if(!TOKEN){location.href='/login';}
+
+// Clock
+function updateClock(){
+  const d=new Date();
+  document.getElementById('clock').textContent=d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})+' · '+d.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
+}
+setInterval(updateClock,10000);updateClock();
+
+// API Helper
+async function api(path,method='GET',body=null){
+  try{
+    const opts={method,headers:H};
+    if(body)opts.body=JSON.stringify(body);
+    const r=await fetch(path,opts);
+    if(r.status===401){location.href='/login';return null;}
+    return await r.json();
+  }catch(e){console.error('API error:',e);return null;}
+}
+
+// View Router
+function showView(view){
+  currentView=view;
+  document.querySelectorAll('.sb-item').forEach(i=>i.classList.remove('active'));
+  const nav=document.getElementById('nav-'+view);
+  if(nav)nav.classList.add('active');
+  const mc=document.getElementById('main-content');
+  mc.innerHTML='<div class="loading"><div class="spinner"></div>Loading '+view+'...</div>';
+  window['load_'+view]?.();
+}
+
+// ═══ DIGEST VIEW ═══
+async function load_digest(){
+  const mc=document.getElementById('main-content');
+  const data=await api('/api/ceo/digest');
+  if(!data||data.error){mc.innerHTML='<div class="empty"><div class="empty-icon">🎯</div>CEO modules loading... Refresh to try again.</div>';return;}
+  
+  const c=data.components||{};
+  const fin=c.financials?.current||{};
+  const okrs=c.okrs||{};
+  const promises=c.promises||{};
+  
+  mc.innerHTML=`
+    <div class="card" style="border-color:rgba(129,140,248,.2);background:rgba(129,140,248,.03)">
+      <div class="card-header"><span class="card-title">🎯 CEO Daily Digest</span><span class="card-badge">LIVE</span></div>
+      <div class="digest-text">${esc(data.digest||'No digest available.')}</div>
+    </div>
+    <div class="quick-bar">
+      <button class="qa-btn" onclick="genBoardBriefing()"><span class="icon">📋</span>Board Prep</button>
+      <button class="qa-btn" onclick="showView('competitors')"><span class="icon">⚔️</span>Competitive Scan</button>
+      <button class="qa-btn" onclick="showView('financials')"><span class="icon">📊</span>Financials</button>
+      <button class="qa-btn" onclick="showView('promises')"><span class="icon">🤝</span>Commitments</button>
+      <button class="qa-btn" onclick="showView('biometrics')"><span class="icon">💓</span>Body Stats</button>
+    </div>
+    <div class="kpi-row">
+      <div class="kpi"><div class="kpi-label">MRR</div><div class="kpi-value" style="color:var(--green)">$${fmt(fin.mrr)}</div><div class="kpi-change ${(c.financials?.mom_changes?.mrr||0)>=0?'up':'down'}">${(c.financials?.mom_changes?.mrr||0)>=0?'▲':'▼'} ${Math.abs(c.financials?.mom_changes?.mrr||0)}% MoM</div></div>
+      <div class="kpi"><div class="kpi-label">Runway</div><div class="kpi-value" style="color:${(fin.runway_months||99)<12?'var(--amber)':'var(--text)'}">${fin.runway_months||'—'}mo</div><div class="kpi-change flat">Months remaining</div></div>
+      <div class="kpi"><div class="kpi-label">OKRs</div><div class="kpi-value" style="color:var(--accent)">${okrs.avg_progress||0}%</div><div class="kpi-change flat">${okrs.on_track||0} on track</div></div>
+      <div class="kpi"><div class="kpi-label">Promises</div><div class="kpi-value" style="color:${(promises.overdue||0)>0?'var(--red)':'var(--amber)'}">${promises.open||0}</div><div class="kpi-change ${(promises.overdue||0)>0?'down':'flat'}">${promises.overdue||0} overdue</div></div>
+    </div>
+    <div class="grid-2">
+      <div class="card"><div class="card-header"><span class="card-title">🏢 Hiring Pipeline</span></div>
+        <div style="font-size:12px;color:var(--muted)">${c.hiring?.open||0} open reqs · ${c.hiring?.urgent?.length||0} urgent</div>
+        ${(c.hiring?.urgent||[]).map(r=>`<div style="font-size:11px;padding:4px 0;border-bottom:1px solid var(--faint)">🔴 ${esc(r.title)} — ${esc(r.department)}</div>`).join('')}
+      </div>
+      <div class="card"><div class="card-header"><span class="card-title">💓 Biometrics</span></div>
+        ${c.biometrics?.averages?Object.entries(c.biometrics.averages).slice(0,4).map(([k,v])=>`<div style="display:flex;justify-content:space-between;font-size:11px;padding:3px 0"><span style="color:var(--muted)">${esc(k)}</span><span style="font-family:var(--mono);font-weight:600">${v}</span></div>`).join(''):'<div class="empty" style="padding:10px"><div class="empty-icon">💓</div>No biometric data</div>'}
+      </div>
+    </div>`;
+}
+async function loadDigest(){
+  showView('digest');
+  // Also reload right panel
+  loadRightPanel();
+}
+
+// ═══ FINANCIALS VIEW ═══
+async function load_financials(){
+  const mc=document.getElementById('main-content');
+  const data=await api('/api/ceo/financials');
+  if(!data||data.message){mc.innerHTML='<div class="empty"><div class="empty-icon">📊</div>No financial data yet.<br><button class="qa-btn" style="margin-top:12px" onclick="addSampleFinancials()">Add Sample KPIs</button></div>';return;}
+  const cur=data.current||{};
+  const chg=data.mom_changes||{};
+  mc.innerHTML=`
+    <div class="card-header"><span class="card-title" style="font-size:16px">📊 Financial Dashboard — ${esc(data.period||'')}</span>
+      <button class="qa-btn" onclick="genFinNarrative()"><span class="icon">📝</span>Generate Narrative</button></div>
+    ${data.alert?`<div class="alert-card"><div class="alert-title">⚠️ Alert</div><div class="alert-text">${esc(data.alert)}</div></div>`:''}
+    ${data.warning?`<div class="alert-card warn"><div class="alert-title">⚠️ Warning</div><div class="alert-text">${esc(data.warning)}</div></div>`:''}
+    <div class="kpi-row">
+      ${kpiCard('MRR','$'+fmt(cur.mrr),chg.mrr)}
+      ${kpiCard('ARR','$'+fmt(cur.arr),chg.arr)}
+      ${kpiCard('Burn Rate','$'+fmt(cur.burn_rate),chg.burn_rate,true)}
+      ${kpiCard('Runway',cur.runway_months+'mo',null)}
+    </div>
+    <div class="kpi-row" style="margin-top:0">
+      ${kpiCard('Cash','$'+fmt(cur.cash),null)}
+      ${kpiCard('Headcount',cur.headcount||'—',chg.headcount)}
+      ${kpiCard('HC Cost','$'+fmt(cur.headcount_cost),null)}
+      ${kpiCard('Gross Margin',(cur.gross_margin||0)+'%',null)}
+    </div>
+    <div id="fin-narrative" style="margin-top:8px"></div>`;
+}
+function kpiCard(label,value,change,invertColor=false){
+  let cls='flat',arrow='';
+  if(change!=null&&change!==undefined){
+    if(invertColor){cls=change<=0?'up':'down';arrow=change<=0?'▼':'▲';}
+    else{cls=change>=0?'up':'down';arrow=change>=0?'▲':'▼';}
+  }
+  return `<div class="kpi"><div class="kpi-label">${label}</div><div class="kpi-value">${value}</div>${change!=null?`<div class="kpi-change ${cls}">${arrow} ${Math.abs(change)}%</div>`:'<div class="kpi-change flat">—</div>'}</div>`;
+}
+async function genFinNarrative(){
+  const el=document.getElementById('fin-narrative');
+  el.innerHTML='<div class="loading"><div class="spinner"></div>Generating investor narrative...</div>';
+  const d=await api('/api/ceo/financials/narrative');
+  el.innerHTML=`<div class="card"><div class="card-title" style="margin-bottom:8px">📝 Financial Narrative</div><div class="digest-text">${esc(d?.narrative||'Failed.')}</div></div>`;
+}
+async function addSampleFinancials(){
+  await api('/api/ceo/financials','POST',{mrr:85000,arr:1020000,burn_rate:120000,runway_months:14,cash:1680000,headcount:18,headcount_cost:95000,gross_margin:72});
+  load_financials();
+}
+
+// ═══ OKRs VIEW ═══
+async function load_okrs(){
+  const mc=document.getElementById('main-content');
+  const data=await api('/api/ceo/okrs');
+  if(!data||!data.objectives?.length){mc.innerHTML='<div class="empty"><div class="empty-icon">🏆</div>No OKRs tracked yet.<br><button class="qa-btn" style="margin-top:12px" onclick="addSampleOKR()">Add Sample OKR</button></div>';return;}
+  const colors={on_track:'var(--green)',at_risk:'var(--amber)',behind:'var(--red)',done:'var(--blue)'};
+  mc.innerHTML=`
+    <div class="card-header"><span class="card-title" style="font-size:16px">🏆 OKR Tracker</span>
+      <span class="card-badge">${data.on_track} on track · ${data.at_risk} at risk</span></div>
+    <div class="kpi-row" style="grid-template-columns:repeat(4,1fr)">
+      ${kpiCard('Avg Progress',data.avg_progress+'%',null)}
+      ${kpiCard('On Track',data.on_track,'',false)}
+      ${kpiCard('At Risk',data.at_risk,'',false)}
+      ${kpiCard('Achieved',data.done,'',false)}
+    </div>
+    ${data.objectives.map(o=>`
+      <div class="card">
+        <div class="card-header"><span class="card-title">${esc(o.title)}</span>
+          <span class="card-badge" style="background:${colors[o.status]||'var(--faint)'}22;color:${colors[o.status]||'var(--muted)'}">${o.status?.toUpperCase()}</span></div>
+        <div class="okr-item"><div class="okr-bar"><div class="okr-fill" style="width:${o.progress}%;background:${colors[o.status]||'var(--accent)'}"></div></div>
+        <div class="okr-status" style="color:${colors[o.status]||'var(--muted)'}">${o.progress}% — ${o.quarter||''}</div></div>
+        ${(o.key_results||[]).map(kr=>`
+          <div style="display:flex;justify-content:space-between;font-size:11px;padding:4px 0;border-bottom:1px solid var(--faint)">
+            <span style="color:var(--muted)">${esc(kr.description)}</span>
+            <span style="font-family:var(--mono);font-weight:600">${kr.current}/${kr.target} ${kr.unit||''}</span>
+          </div>`).join('')}
+      </div>`).join('')}`;
+}
+async function addSampleOKR(){
+  await api('/api/ceo/okrs','POST',{title:'Increase ARR to $1.5M',quarter:'Q1 2026',key_results:[
+    {description:'Close 5 enterprise deals',target:5,current:2,unit:'deals'},
+    {description:'Reduce churn to <3%',target:3,current:4.2,unit:'%'},
+    {description:'Launch self-serve tier',target:100,current:65,unit:'%'}
+  ]});
+  load_okrs();
+}
+
+// ═══ PROMISES VIEW ═══
+async function load_promises(){
+  const mc=document.getElementById('main-content');
+  const data=await api('/api/ceo/promises');
+  const proms=data?.promises||[];
+  mc.innerHTML=`
+    <div class="card-header"><span class="card-title" style="font-size:16px">🤝 Commitments & Promises</span>
+      <span class="card-badge">${proms.length} open · ${proms.filter(p=>p.status==='overdue').length} overdue</span></div>
+    ${proms.length===0?'<div class="empty"><div class="empty-icon">🤝</div>No open commitments.<br><button class="qa-btn" style="margin-top:12px" onclick="addSamplePromise()">Add Sample</button></div>':''}
+    ${proms.map(p=>`
+      <div class="card" style="padding:14px">
+        <div class="promise-item" style="border:none;padding:0">
+          <div class="promise-dot ${p.status}"></div>
+          <div><div class="promise-text">${esc(p.what)}</div>
+            <div class="promise-meta">${esc(p.promised_by)} → ${esc(p.promised_to)}${p.due_date?' · due '+p.due_date:''} · ${p.status}</div></div>
+          ${p.status!=='fulfilled'?`<button class="qa-btn" style="margin-left:auto;font-size:10px" onclick="fulfillPromise('${p.id}')">✓ Done</button>`:''}
+        </div>
+      </div>`).join('')}`;
+}
+async function fulfillPromise(id){await api('/api/ceo/promises/fulfill','POST',{promise_id:id});load_promises();}
+async function addSamplePromise(){
+  await api('/api/ceo/promises','POST',{promised_by:'CEO',promised_to:'Board',what:'Deliver Q1 revenue projections by March 5',due_date:'2026-03-05',context:'Board meeting'});
+  await api('/api/ceo/promises','POST',{promised_by:'CTO',promised_to:'CEO',what:'Complete security audit before launch',due_date:'2026-02-28',context:'1:1 meeting'});
+  load_promises();
+}
+
+// ═══ COMPETITORS VIEW ═══
+async function load_competitors(){
+  const mc=document.getElementById('main-content');
+  const data=await api('/api/ceo/competitors');
+  const comps=data?.competitors||[];
+  mc.innerHTML=`
+    <div class="card-header"><span class="card-title" style="font-size:16px">⚔️ Competitive Intelligence</span>
+      <button class="qa-btn" onclick="addCompetitorPrompt()"><span class="icon">+</span>Add Competitor</button></div>
+    ${comps.length===0?'<div class="empty"><div class="empty-icon">⚔️</div>No competitors tracked.<br><button class="qa-btn" style="margin-top:12px" onclick="addSampleCompetitor()">Add Sample</button></div>':''}
+    ${comps.map(c=>`
+      <div class="card">
+        <div class="card-header"><span class="card-title">${esc(c.name)}</span>
+          <button class="qa-btn" style="font-size:10px" onclick="scanComp('${esc(c.name)}','${esc(c.domain||'')}')">🔍 Scan Now</button></div>
+        <div style="font-family:var(--mono);font-size:10px;color:var(--muted)">${c.domain||'No domain'} · ${c.industry||''}</div>
+        ${(c.intel||[]).slice(-1).map(i=>`<div class="comp-intel" style="margin-top:8px">${esc(i.synthesis||'No intel yet.')}</div>`).join('')||'<div style="font-size:11px;color:var(--muted);margin-top:6px">No intel collected yet. Click Scan.</div>'}
+      </div>`).join('')}
+    <div id="scan-result"></div>`;
+}
+async function scanComp(name,domain){
+  const el=document.getElementById('scan-result');
+  el.innerHTML='<div class="loading"><div class="spinner"></div>Scanning '+name+'...</div>';
+  const d=await api('/api/ceo/competitors/scan','POST',{name,domain});
+  el.innerHTML=d?.synthesis?`<div class="card" style="border-color:rgba(251,191,36,.2)"><div class="card-title">🔍 Scan: ${esc(name)}</div><div class="digest-text" style="margin-top:8px">${esc(d.synthesis)}</div></div>`:'<div class="alert-card warn"><div class="alert-text">Scan failed. Check Tavily config.</div></div>';
+}
+async function addSampleCompetitor(){
+  await api('/api/ceo/competitors','POST',{name:'OpenAI',domain:'openai.com',industry:'AI'});
+  await api('/api/ceo/competitors','POST',{name:'Anthropic',domain:'anthropic.com',industry:'AI'});
+  load_competitors();
+}
+function addCompetitorPrompt(){
+  const name=prompt('Competitor name:');if(!name)return;
+  const domain=prompt('Website domain (optional):');
+  api('/api/ceo/competitors','POST',{name,domain:domain||'',industry:''}).then(()=>load_competitors());
+}
+
+// ═══ CONTACTS VIEW ═══
+async function load_contacts(){
+  const mc=document.getElementById('main-content');
+  const data=await api('/api/ceo/contacts');
+  const contacts=data?.contacts||[];
+  mc.innerHTML=`
+    <div class="card-header"><span class="card-title" style="font-size:16px">👥 Contact Intelligence</span>
+      <button class="qa-btn" onclick="addContactPrompt()"><span class="icon">+</span>Add Contact</button></div>
+    ${contacts.length===0?'<div class="empty"><div class="empty-icon">👥</div>No contacts yet.<br><button class="qa-btn" style="margin-top:12px" onclick="addSampleContact()">Add Sample</button></div>':''}
+    <div class="grid-2">${contacts.map(c=>`
+      <div class="card" style="cursor:pointer" onclick="getBriefing('${esc(c.id)}')">
+        <div class="contact-item" style="border:none">
+          <div class="contact-avatar">${(c.name||'?')[0]}</div>
+          <div class="contact-info"><div class="contact-name">${esc(c.name)}</div><div class="contact-role">${esc(c.role)} @ ${esc(c.company)}</div></div>
+        </div>
+        <div style="font-size:10px;color:var(--muted);margin-top:4px">Last: ${c.last_touchpoint||'—'} · ${c.relationship||''}</div>
+      </div>`).join('')}</div>
+    <div id="briefing-card"></div>`;
+}
+async function getBriefing(cid){
+  const el=document.getElementById('briefing-card');
+  el.innerHTML='<div class="loading"><div class="spinner"></div>Generating stakeholder briefing...</div>';
+  const d=await api('/api/ceo/contacts/briefing','POST',{contact_id:cid,meeting_topic:'General check-in'});
+  el.innerHTML=`<div class="card" style="border-color:rgba(96,165,250,.2);background:rgba(96,165,250,.03)"><div class="card-title">📋 Stakeholder Briefing</div><div class="digest-text" style="margin-top:8px">${esc(d?.briefing||'Failed.')}</div></div>`;
+}
+async function addSampleContact(){
+  await api('/api/ceo/contacts','POST',{contact_id:'john_smith',name:'John Smith',role:'Managing Partner',company:'Sequoia Capital',relationship:'Lead investor',notes:'Led our Series A. Prefers data-driven updates.'});
+  load_contacts();
+}
+function addContactPrompt(){
+  const name=prompt('Contact name:');if(!name)return;
+  const role=prompt('Role:');const company=prompt('Company:');
+  const id=name.toLowerCase().replace(/\s+/g,'_');
+  api('/api/ceo/contacts','POST',{contact_id:id,name,role:role||'',company:company||''}).then(()=>load_contacts());
+}
+
+// ═══ ORG & HIRING VIEW ═══
+async function load_org(){
+  const mc=document.getElementById('main-content');
+  const [org,hire]=await Promise.all([api('/api/ceo/org'),api('/api/ceo/hiring')]);
+  const depts=org?.departments||{};const roles=hire?.roles||[];
+  mc.innerHTML=`
+    <div class="card-header"><span class="card-title" style="font-size:16px">🏢 Org & Hiring</span></div>
+    <div class="kpi-row" style="grid-template-columns:repeat(3,1fr)">
+      ${kpiCard('Headcount',org?.total_headcount||0,null)}
+      ${kpiCard('Open Reqs',hire?.open||0,null)}
+      ${kpiCard('Urgent Hires',hire?.urgent?.length||0,null)}
+    </div>
+    <div class="grid-2">
+      <div class="card"><div class="card-title" style="margin-bottom:10px">Departments</div>
+        ${Object.entries(depts).map(([d,ms])=>`<div style="display:flex;justify-content:space-between;padding:4px 0;font-size:11px;border-bottom:1px solid var(--faint)"><span>${esc(d)}</span><span style="font-family:var(--mono);color:var(--muted)">${ms.length}</span></div>`).join('')||'<div class="empty" style="padding:8px">No team members added.</div>'}
+      </div>
+      <div class="card"><div class="card-title" style="margin-bottom:10px">Open Roles</div>
+        ${roles.filter(r=>r.status==='open').map(r=>`<div style="padding:4px 0;font-size:11px;border-bottom:1px solid var(--faint)"><span style="color:${{urgent:'var(--red)',high:'var(--amber)'}[r.priority]||'var(--text)'}">${r.priority==='urgent'?'🔴 ':''}${esc(r.title)}</span><span style="font-family:var(--mono);font-size:9px;color:var(--muted)"> — ${esc(r.department)}</span></div>`).join('')||'<div class="empty" style="padding:8px">No open roles.</div>'}
+      </div>
+    </div>`;
+}
+
+// ═══ WORKFLOWS VIEW ═══
+async function load_workflows(){
+  const mc=document.getElementById('main-content');
+  const [wf,tr]=await Promise.all([api('/api/ceo/workflows'),api('/api/ceo/triggers')]);
+  const workflows=wf?.workflows||[];const triggers=tr?.triggers||[];
+  mc.innerHTML=`
+    <div class="card-header"><span class="card-title" style="font-size:16px">⚙️ Workflows & Triggers</span>
+      <button class="qa-btn" onclick="addSampleWorkflow()"><span class="icon">+</span>Add Sample</button></div>
+    <div class="grid-2">
+      <div class="card"><div class="card-title" style="margin-bottom:10px">Workflows (${workflows.length})</div>
+        ${workflows.map(w=>`<div class="wf-item"><span class="wf-icon">⚙️</span><span class="wf-name">${esc(w.name)}</span><span class="wf-trigger">${esc(w.trigger)}</span></div>`).join('')||'<div class="empty" style="padding:8px">No workflows created.</div>'}
+      </div>
+      <div class="card"><div class="card-title" style="margin-bottom:10px">Triggers (${triggers.length})</div>
+        ${triggers.map(t=>`<div class="wf-item"><span class="wf-icon">⚡</span><span class="wf-name">${esc(t.name)}</span><span class="wf-trigger">${esc(t.condition)}</span></div>`).join('')||'<div class="empty" style="padding:8px">No triggers set.</div>'}
+      </div>
+    </div>`;
+}
+async function addSampleWorkflow(){
+  await api('/api/ceo/workflows','POST',{name:'Post-Board Meeting',trigger:'after_board_meeting',steps:['Send meeting summary to all board members','Update investor update doc','Create action items from decisions','Schedule follow-up calls']});
+  await api('/api/ceo/triggers','POST',{name:'Revenue Drop Alert',condition:'revenue_drops',action:'Alert CEO with root cause analysis',threshold:10});
+  load_workflows();
+}
+
+// ═══ BIOMETRICS VIEW ═══
+async function load_biometrics(){
+  const mc=document.getElementById('main-content');
+  const data=await api('/api/ceo/biometrics?days=7');
+  mc.innerHTML=`
+    <div class="card-header"><span class="card-title" style="font-size:16px">💓 Biometrics & Performance</span>
+      <button class="qa-btn" onclick="addSampleBiometrics()"><span class="icon">+</span>Add Data</button>
+      <button class="qa-btn" onclick="getBioInsight()"><span class="icon">🧠</span>Get AI Insight</button></div>
+    ${data?.averages?`<div class="kpi-row">${Object.entries(data.averages).slice(0,4).map(([k,v])=>kpiCard(k,v,null)).join('')}</div>`:'<div class="empty"><div class="empty-icon">💓</div>No biometric data. Connect Whoop/Oura or add manually.</div>'}
+    <div id="bio-insight" style="margin-top:12px"></div>`;
+}
+async function getBioInsight(){
+  const el=document.getElementById('bio-insight');
+  el.innerHTML='<div class="loading"><div class="spinner"></div>Analyzing performance state...</div>';
+  const d=await api('/api/ceo/biometrics/insight?days=7');
+  el.innerHTML=`<div class="card" style="border-color:rgba(52,211,153,.2);background:rgba(52,211,153,.03)"><div class="card-title">🧠 Performance Insight</div><div class="digest-text" style="margin-top:8px">${esc(d?.insight||'No data.')}</div></div>`;
+}
+async function addSampleBiometrics(){
+  await api('/api/ceo/biometrics','POST',{source:'whoop',data:{hrv:45,recovery:72,sleep_score:81,strain:12.4,resting_hr:58,respiratory_rate:15.2}});
+  load_biometrics();
+}
+
+// ═══ MARKET VIEW ═══
+async function load_market(){
+  const mc=document.getElementById('main-content');
+  mc.innerHTML=`
+    <div class="card-header"><span class="card-title" style="font-size:16px">📈 Market Intelligence</span></div>
+    <div class="quick-bar">
+      <button class="qa-btn" onclick="fetchMarketIntel('AI startup funding 2026')"><span class="icon">🤖</span>AI Funding</button>
+      <button class="qa-btn" onclick="fetchMarketIntel('SaaS market trends')"><span class="icon">📊</span>SaaS Trends</button>
+      <button class="qa-btn" onclick="fetchMarketIntel('venture capital activity')"><span class="icon">💰</span>VC Activity</button>
+      <button class="qa-btn" onclick="fetchMarketIntel('tech layoffs hiring')"><span class="icon">👥</span>Talent Market</button>
+    </div>
+    <div id="market-results"></div>`;
+}
+async function fetchMarketIntel(topic){
+  const el=document.getElementById('market-results');
+  el.innerHTML='<div class="loading"><div class="spinner"></div>Scanning: '+topic+'...</div>';
+  const d=await api('/api/ceo/market/intel','POST',{topic});
+  el.innerHTML=d?.synthesis?`
+    <div class="card" style="margin-top:8px"><div class="card-title">📈 ${esc(topic)}</div>
+    <div class="digest-text" style="margin-top:8px">${esc(d.synthesis)}</div>
+    ${(d.sources||[]).map(s=>`<div style="font-size:10px;margin-top:4px"><a href="${s.url}" target="_blank" style="color:var(--accent);text-decoration:none">${esc(s.title)}</a></div>`).join('')}
+    </div>`:'<div class="alert-card warn"><div class="alert-text">Market intel unavailable. Check Tavily config.</div></div>';
+}
+
+// ═══ BOARD BRIEFING ═══
+async function genBoardBriefing(){
+  const mc=document.getElementById('main-content');
+  mc.innerHTML='<div class="loading"><div class="spinner"></div>Generating board briefing document...</div>';
+  const d=await api('/api/ceo/board-briefing');
+  mc.innerHTML=`<div class="card" style="border-color:rgba(129,140,248,.2)"><div class="card-header"><span class="card-title">📋 Board Briefing Document</span><span class="card-badge">AUTO-GENERATED</span></div><div class="digest-text" style="margin-top:8px">${esc(d?.briefing||'Failed.')}</div></div>`;
+}
+
+// ═══ RIGHT PANEL ═══
+async function loadRightPanel(){
+  const [briefing,tasks]=await Promise.all([api('/api/briefing'),api('/api/tasks')]);
+  document.getElementById('briefing-text').textContent=briefing?.summary||'No briefing available.';
+  document.getElementById('calendar-list').innerHTML=briefing?.calendar||'No events today.';
+  const tl=document.getElementById('tasks-list');
+  const t=tasks?.tasks||[];
+  tl.innerHTML=t.length?t.slice(0,6).map(tk=>`<div style="padding:4px 0;border-bottom:1px solid var(--faint);font-size:11px">${{urgent:'🔴',high:'🟠',medium:'🟡',low:'🟢'}[tk.priority]||'⚪'} ${esc(tk.title)}${tk.due?' <span style="color:var(--muted);font-family:var(--mono);font-size:9px">'+tk.due+'</span>':''}</div>`).join(''):'<div style="color:var(--muted);font-size:11px">No pending tasks ✅</div>';
+  // Update promise badge
+  const pdata=await api('/api/ceo/promises');
+  const pc=pdata?.promises?.length||0;
+  const badge=document.getElementById('promise-count');
+  if(pc>0){badge.style.display='inline';badge.textContent=pc;}else{badge.style.display='none';}
+  // Alerts
+  const alerts=document.getElementById('alerts-list');
+  const fin=await api('/api/ceo/financials');
+  let alertsHtml='';
+  if(fin?.alert)alertsHtml+=`<div class="alert-card"><div class="alert-title">🔴 Finance</div><div class="alert-text">${esc(fin.alert)}</div></div>`;
+  if(fin?.warning)alertsHtml+=`<div class="alert-card warn"><div class="alert-title">⚠️ Finance</div><div class="alert-text">${esc(fin.warning)}</div></div>`;
+  const overdue=(pdata?.promises||[]).filter(p=>p.status==='overdue');
+  overdue.forEach(p=>{alertsHtml+=`<div class="alert-card"><div class="alert-title">🔴 Overdue</div><div class="alert-text">${esc(p.what)}</div></div>`;});
+  alerts.innerHTML=alertsHtml||'<div style="font-size:11px;color:var(--muted)">No active alerts ✅</div>';
+}
+
+// ═══ QUICK COMMAND ═══
+async function sendQuickCmd(){
+  const input=document.getElementById('quick-cmd');
+  const text=input.value.trim();if(!text)return;
+  input.value='';input.placeholder='Processing...';
+  const d=await api('/api/command','POST',{text,active_modules:['ceo'],use_history:false});
+  input.placeholder='Ask Jarvis anything...';
+  if(d?.response){
+    const mc=document.getElementById('main-content');
+    mc.innerHTML=`<div class="card" style="border-color:rgba(129,140,248,.2)"><div class="card-header"><span class="card-title">💬 Jarvis Response</span></div><div class="digest-text">${esc(d.response)}</div></div>`;
+  }
+}
+
+// ═══ VOICE (stub) ═══
+function toggleVoice(){
+  const orb=document.getElementById('voice-orb');
+  orb.classList.toggle('listening');
+  if(orb.classList.contains('listening')){setTimeout(()=>orb.classList.remove('listening'),5000);}
+}
+
+// ═══ UTILS ═══
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');}
+function fmt(n){if(!n&&n!==0)return '—';return Number(n).toLocaleString('en-US',{maximumFractionDigits:0});}
+
+// ═══ INIT ═══
+(async function init(){
+  load_digest();
+  loadRightPanel();
+})();
+</script>
+</body>
+</html>

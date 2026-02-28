@@ -1504,11 +1504,421 @@ MOOD_INSTRUCTIONS = {
     "normal":      "",
 }
 
+# ══════════════════════════════════════════════════════════════════════════════
+# GOOGLE INTEGRATION — OAuth2, Calendar, Gmail, Tasks
+# ══════════════════════════════════════════════════════════════════════════════
+
+_google_ok = False
+try:
+    from google_integration import (
+        get_google_auth_url, exchange_google_code, is_google_connected,
+        disconnect_google, get_calendar_events, get_today_schedule,
+        get_recent_emails, get_email_summary, get_google_tasks, get_google_status,
+    )
+    _google_ok = True
+    print("[OK] Google integration module loaded")
+except Exception as _ge:
+    print(f"[WARN] Google integration not loaded: {_ge}")
+
+@app.get("/api/google/status")
+async def api_google_status(_=Depends(require_auth)):
+    if not _google_ok:
+        return {"connected": False, "error": "Google module not loaded"}
+    return await get_google_status()
+
+@app.get("/api/google/connect")
+async def api_google_connect(_=Depends(require_auth)):
+    if not _google_ok:
+        raise HTTPException(503, "Google module not loaded")
+    url = get_google_auth_url()
+    if not url:
+        return {"error": "GOOGLE_CLIENT_ID not configured in .env"}
+    return {"auth_url": url}
+
+@app.get("/api/google/callback")
+async def api_google_callback(code: str = ""):
+    """OAuth2 callback — Google redirects here after user consent."""
+    if not _google_ok or not code:
+        return HTMLResponse("<script>window.close()</script>")
+    tokens = await exchange_google_code(code)
+    if "access_token" in tokens:
+        return HTMLResponse("<html><body style='background:#06070d;color:#fff;font-family:sans-serif;display:flex;align-items:center;justify-content:center;height:100vh'><div style='text-align:center'><h2>✅ Google Connected!</h2><p>You can close this window.</p><script>setTimeout(()=>window.close(),2000)</script></div></body></html>")
+    return HTMLResponse(f"<html><body style='background:#06070d;color:#f87171;font-family:sans-serif;padding:40px'><h2>❌ Connection Failed</h2><pre>{tokens}</pre></body></html>")
+
+@app.post("/api/google/disconnect")
+async def api_google_disconnect(_=Depends(require_auth)):
+    if not _google_ok:
+        return {"status": "not loaded"}
+    return disconnect_google()
+
+@app.get("/api/google/calendar")
+async def api_google_calendar(days: int = 1, _=Depends(require_auth)):
+    if not _google_ok:
+        return {"events": [], "connected": False}
+    events = await get_calendar_events(days)
+    return {"events": events, "connected": is_google_connected(), "schedule": await get_today_schedule()}
+
+@app.get("/api/google/gmail")
+async def api_google_gmail(_=Depends(require_auth)):
+    if not _google_ok:
+        return {"emails": [], "connected": False}
+    return await get_email_summary()
+
+@app.get("/api/google/tasks")
+async def api_google_tasks(_=Depends(require_auth)):
+    if not _google_ok:
+        return {"tasks": [], "connected": False}
+    tasks = await get_google_tasks()
+    return {"tasks": tasks, "connected": is_google_connected()}
+
+# ══════════════════════════════════════════════════════════════════════════════
+# CEO JARVIS MODULE — Contacts, OKRs, Competitors, Board Prep, P&L, Biometrics
+# ══════════════════════════════════════════════════════════════════════════════
+
+_ceo_ok = False
+try:
+    from jarvis_ceo import (
+        # Contacts
+        upsert_contact, get_contact, list_contacts, get_contact_briefing,
+        # Competitive Intel
+        add_competitor, list_competitors, scan_competitor, get_competitive_digest,
+        # OKRs
+        create_objective, update_key_result, get_okr_summary,
+        # Board
+        generate_board_briefing,
+        # People & Org
+        upsert_team_member, get_org_chart, add_open_role, get_hiring_pipeline,
+        # Promises
+        log_promise, fulfill_promise, get_open_promises, extract_promises_from_meeting,
+        # Workflows / Triggers
+        create_workflow, list_workflows, create_trigger, list_triggers, execute_workflow_chain,
+        # Biometrics
+        ingest_biometric_data, get_biometric_summary, get_performance_insight,
+        # Financials
+        update_financial_kpis, get_financial_dashboard, generate_financial_narrative,
+        # Market
+        log_market_data, get_latest_market_data, get_market_intelligence,
+        # Digest
+        generate_ceo_digest,
+        # Habits
+        upsert_habit, log_habit, get_habit_stats,
+        # Seed
+        seed_agency_data,
+    )
+    _ceo_ok = True
+    print("[OK] CEO Jarvis modules loaded")
+except Exception as _ce:
+    print(f"[WARN] CEO modules not loaded: {_ce}")
+
+# ── CEO Pydantic Models ───────────────────────────────────────────────────────
+class ContactUpsert(BaseModel):
+    contact_id: str
+    name: str
+    role: str = ""
+    company: str = ""
+    notes: str = ""
+    relationship: str = ""
+    last_touchpoint: str = ""
+
+class ContactBriefingRequest(BaseModel):
+    contact_id: str
+    meeting_topic: str = ""
+
+class CompetitorAdd(BaseModel):
+    name: str
+    domain: str = ""
+    industry: str = ""
+
+class CompetitorScan(BaseModel):
+    name: str
+    domain: str = ""
+
+class ObjectiveCreate(BaseModel):
+    title: str
+    quarter: str = ""
+    key_results: list[dict] = []
+
+class KRUpdate(BaseModel):
+    obj_id: str
+    kr_id: str
+    current_value: float
+    notes: str = ""
+
+class TeamMemberUpsert(BaseModel):
+    employee_id: str
+    name: str
+    role: str
+    department: str
+    manager_id: str = ""
+    level: str = ""
+    location: str = ""
+
+class OpenRoleRequest(BaseModel):
+    title: str
+    department: str
+    priority: str = "normal"
+    description: str = ""
+    target_date: str = ""
+
+class PromiseCreate(BaseModel):
+    promised_by: str
+    promised_to: str
+    what: str
+    due_date: str = ""
+    context: str = ""
+
+class PromiseFulfill(BaseModel):
+    promise_id: str
+
+class PromiseExtract(BaseModel):
+    transcript: str
+
+class WorkflowCreate(BaseModel):
+    name: str
+    trigger: str
+    steps: list[str]
+    enabled: bool = True
+
+class TriggerCreate(BaseModel):
+    name: str
+    condition: str
+    action: str
+    threshold: float = 0
+    enabled: bool = True
+
+class WorkflowExecute(BaseModel):
+    trigger: str
+    context: str = ""
+
+class BiometricIngest(BaseModel):
+    source: str   # whoop / oura / apple_watch / manual
+    data: dict    # hrv, recovery, sleep_score, strain, steps, etc.
+    date: str = ""
+
+class FinancialKPIs(BaseModel):
+    mrr: float = 0
+    arr: float = 0
+    burn_rate: float = 0
+    runway_months: float = 0
+    cash: float = 0
+    headcount: int = 0
+    headcount_cost: float = 0
+    gross_margin: float = 0
+    period: str = ""
+
+class MarketDataLog(BaseModel):
+    tickers: dict = {}
+    funding_rounds: list[dict] = []
+    notes: str = ""
+
+class MarketIntelRequest(BaseModel):
+    topic: str = "AI startup market"
+
+def _ceo_required():
+    if not _ceo_ok:
+        raise HTTPException(503, "CEO modules failed to load. Check server logs.")
+
+# ─── CONTACTS ─────────────────────────────────────────────────────────────────
+@app.post("/api/ceo/contacts")
+async def api_upsert_contact(req: ContactUpsert, _=Depends(require_auth)):
+    _ceo_required()
+    return upsert_contact(req.contact_id, req.name, req.role, req.company,
+                          req.notes, req.relationship, req.last_touchpoint)
+
+@app.get("/api/ceo/contacts")
+async def api_list_contacts(q: str = "", _=Depends(require_auth)):
+    _ceo_required()
+    return {"contacts": list_contacts(q)}
+
+@app.get("/api/ceo/contacts/{contact_id}")
+async def api_get_contact(contact_id: str, _=Depends(require_auth)):
+    _ceo_required()
+    c = get_contact(contact_id)
+    if not c: raise HTTPException(404, "Contact not found")
+    return c
+
+@app.post("/api/ceo/contacts/briefing")
+async def api_contact_briefing(req: ContactBriefingRequest, _=Depends(require_auth)):
+    _ceo_required()
+    return {"briefing": await get_contact_briefing(req.contact_id, req.meeting_topic)}
+
+# ─── COMPETITIVE INTEL ────────────────────────────────────────────────────────
+@app.post("/api/ceo/competitors")
+async def api_add_competitor(req: CompetitorAdd, _=Depends(require_auth)):
+    _ceo_required()
+    return add_competitor(req.name, req.domain, req.industry)
+
+@app.get("/api/ceo/competitors")
+async def api_list_competitors(_=Depends(require_auth)):
+    _ceo_required()
+    return {"competitors": list_competitors()}
+
+@app.post("/api/ceo/competitors/scan")
+async def api_scan_competitor(req: CompetitorScan, _=Depends(require_auth)):
+    _ceo_required()
+    return await scan_competitor(req.name, req.domain)
+
+@app.get("/api/ceo/competitors/digest")
+async def api_competitive_digest(_=Depends(require_auth)):
+    _ceo_required()
+    return await get_competitive_digest()
+
+# ─── OKRs ─────────────────────────────────────────────────────────────────────
+@app.post("/api/ceo/okrs")
+async def api_create_objective(req: ObjectiveCreate, _=Depends(require_auth)):
+    _ceo_required()
+    return create_objective(req.title, req.quarter, req.key_results)
+
+@app.get("/api/ceo/okrs")
+async def api_get_okrs(_=Depends(require_auth)):
+    _ceo_required()
+    return get_okr_summary()
+
+@app.patch("/api/ceo/okrs/kr")
+async def api_update_kr(req: KRUpdate, _=Depends(require_auth)):
+    _ceo_required()
+    return update_key_result(req.obj_id, req.kr_id, req.current_value, req.notes)
+
+@app.get("/api/ceo/board-briefing")
+async def api_board_briefing(_=Depends(require_auth)):
+    _ceo_required()
+    return {"briefing": await generate_board_briefing()}
+
+# ─── ORG CHART ────────────────────────────────────────────────────────────────
+@app.post("/api/ceo/org")
+async def api_upsert_member(req: TeamMemberUpsert, _=Depends(require_auth)):
+    _ceo_required()
+    return upsert_team_member(req.employee_id, req.name, req.role, req.department,
+                              req.manager_id, req.level, req.location)
+
+@app.get("/api/ceo/org")
+async def api_org_chart(_=Depends(require_auth)):
+    _ceo_required()
+    return get_org_chart()
+
+# ─── HIRING ───────────────────────────────────────────────────────────────────
+@app.post("/api/ceo/hiring")
+async def api_add_role(req: OpenRoleRequest, _=Depends(require_auth)):
+    _ceo_required()
+    return add_open_role(req.title, req.department, req.priority, req.description, req.target_date)
+
+@app.get("/api/ceo/hiring")
+async def api_hiring_pipeline(_=Depends(require_auth)):
+    _ceo_required()
+    return get_hiring_pipeline()
+
+# ─── PROMISES / COMMITMENTS ───────────────────────────────────────────────────
+@app.post("/api/ceo/promises")
+async def api_log_promise(req: PromiseCreate, _=Depends(require_auth)):
+    _ceo_required()
+    return log_promise(req.promised_by, req.promised_to, req.what, req.due_date, req.context)
+
+@app.get("/api/ceo/promises")
+async def api_get_promises(_=Depends(require_auth)):
+    _ceo_required()
+    return {"promises": get_open_promises()}
+
+@app.post("/api/ceo/promises/fulfill")
+async def api_fulfill_promise(req: PromiseFulfill, _=Depends(require_auth)):
+    _ceo_required()
+    ok = fulfill_promise(req.promise_id)
+    return {"status": "fulfilled" if ok else "not_found"}
+
+@app.post("/api/ceo/promises/extract")
+async def api_extract_promises(req: PromiseExtract, _=Depends(require_auth)):
+    """Auto-extract commitments from a meeting transcript."""
+    _ceo_required()
+    saved = await extract_promises_from_meeting(req.transcript)
+    return {"extracted": len(saved), "promises": saved}
+
+# ─── WORKFLOWS ────────────────────────────────────────────────────────────────
+@app.post("/api/ceo/workflows")
+async def api_create_workflow(req: WorkflowCreate, _=Depends(require_auth)):
+    _ceo_required()
+    return create_workflow(req.name, req.trigger, req.steps, req.enabled)
+
+@app.get("/api/ceo/workflows")
+async def api_list_workflows(_=Depends(require_auth)):
+    _ceo_required()
+    return {"workflows": list_workflows()}
+
+@app.post("/api/ceo/workflows/execute")
+async def api_execute_workflow(req: WorkflowExecute, _=Depends(require_auth)):
+    _ceo_required()
+    return await execute_workflow_chain(req.trigger, req.context)
+
+@app.post("/api/ceo/triggers")
+async def api_create_trigger(req: TriggerCreate, _=Depends(require_auth)):
+    _ceo_required()
+    return create_trigger(req.name, req.condition, req.action, req.threshold, req.enabled)
+
+@app.get("/api/ceo/triggers")
+async def api_list_triggers(_=Depends(require_auth)):
+    _ceo_required()
+    return {"triggers": list_triggers()}
+
+# ─── BIOMETRICS ───────────────────────────────────────────────────────────────
+@app.post("/api/ceo/biometrics")
+async def api_ingest_biometrics(req: BiometricIngest, _=Depends(require_auth)):
+    _ceo_required()
+    return ingest_biometric_data(req.source, req.data, req.date)
+
+@app.get("/api/ceo/biometrics")
+async def api_biometric_summary(days: int = 7, _=Depends(require_auth)):
+    _ceo_required()
+    return get_biometric_summary(days)
+
+@app.get("/api/ceo/biometrics/insight")
+async def api_biometric_insight(days: int = 7, _=Depends(require_auth)):
+    _ceo_required()
+    return {"insight": await get_performance_insight(days)}
+
+# ─── FINANCIALS ───────────────────────────────────────────────────────────────
+@app.post("/api/ceo/financials")
+async def api_update_financials(req: FinancialKPIs, _=Depends(require_auth)):
+    _ceo_required()
+    kpis = {k: v for k, v in req.dict().items() if k != "period" and v}
+    return update_financial_kpis(kpis, req.period)
+
+@app.get("/api/ceo/financials")
+async def api_financial_dashboard(_=Depends(require_auth)):
+    _ceo_required()
+    return get_financial_dashboard()
+
+@app.get("/api/ceo/financials/narrative")
+async def api_financial_narrative(_=Depends(require_auth)):
+    _ceo_required()
+    return {"narrative": await generate_financial_narrative()}
+
+# ─── MARKET INTELLIGENCE ──────────────────────────────────────────────────────
+@app.post("/api/ceo/market")
+async def api_log_market(req: MarketDataLog, _=Depends(require_auth)):
+    _ceo_required()
+    return log_market_data(req.tickers, req.funding_rounds, req.notes)
+
+@app.get("/api/ceo/market")
+async def api_latest_market(_=Depends(require_auth)):
+    _ceo_required()
+    return get_latest_market_data()
+
+@app.post("/api/ceo/market/intel")
+async def api_market_intel(req: MarketIntelRequest, _=Depends(require_auth)):
+    _ceo_required()
+    return await get_market_intelligence(req.topic)
+
+# ─── CEO DIGEST (master endpoint) ─────────────────────────────────────────────
+@app.get("/api/ceo/digest")
+async def api_ceo_digest(_=Depends(require_auth)):
+    """Full CEO morning digest — all data sources in one call."""
+    if not _ceo_ok:
+        return {"error": "CEO modules not loaded"}
+    return await generate_ceo_digest()
+
 # ── Serve HTML ────────────────────────────────────────────────────────────────
 
 import pathlib as _pl
 _HTML_DIR = _pl.Path(__file__).parent
-_HTML_FILES = ["blitz_hub.html", "forge.html", "canvas.html", "nexus.html", "studio.html", "index.html"]
+_HTML_FILES = ["blitz_hub.html", "forge.html", "canvas.html", "nexus.html", "studio.html", "index.html", "jarvis_hud.html"]
 
 for _fname in _HTML_FILES:
     _path = _HTML_DIR / _fname
@@ -1517,7 +1927,41 @@ for _fname in _HTML_FILES:
         async def _serve(f=_path):
             return FileResponse(f, media_type="text/html")
 
-_CLEAN_ROUTES = {"hub": "blitz_hub.html", "forge": "forge.html", "canvas": "canvas.html", "nexus": "nexus.html", "studio": "studio.html"}
+# ── Habits Tracker ────────────────────────────────────────────────────────────
+class HabitUpsert(BaseModel):
+    habit_id: str
+    name: str
+    icon: str = "🎯"
+    target_per_month: int = 25
+
+class HabitLog(BaseModel):
+    habit_id: str
+    done: bool = True
+    date: str = ""
+    notes: str = ""
+
+@app.post("/api/ceo/habits")
+async def api_upsert_habit(body: HabitUpsert, _=Depends(require_auth)):
+    if not _ceo_ok: raise HTTPException(503)
+    return upsert_habit(body.habit_id, body.name, body.icon, body.target_per_month)
+
+@app.post("/api/ceo/habits/log")
+async def api_log_habit(body: HabitLog, _=Depends(require_auth)):
+    if not _ceo_ok: raise HTTPException(503)
+    return log_habit(body.habit_id, body.done, body.date, body.notes)
+
+@app.get("/api/ceo/habits")
+async def api_get_habits(months: int = 6, _=Depends(require_auth)):
+    if not _ceo_ok: raise HTTPException(503)
+    return get_habit_stats(months)
+
+# ── Seed Data ─────────────────────────────────────────────────────────────────
+@app.post("/api/ceo/seed")
+async def api_seed_data(_=Depends(require_auth)):
+    if not _ceo_ok: raise HTTPException(503)
+    return seed_agency_data()
+
+_CLEAN_ROUTES = {"hub": "blitz_hub.html", "forge": "forge.html", "canvas": "canvas.html", "nexus": "nexus.html", "studio": "studio.html", "jarvis": "jarvis_hud.html"}
 for _route, _file in _CLEAN_ROUTES.items():
     _fpath = _HTML_DIR / _file
     if _fpath.exists():

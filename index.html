@@ -4107,6 +4107,455 @@
     #ai-permission-note.on {
       display: block;
     }
+
+    /* ══════ CEO MODE ══════ */
+    .ceo-toggle {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-left: 8px
+    }
+
+    .ceo-toggle label {
+      font-family: var(--mono);
+      font-size: 9px;
+      color: var(--muted);
+      letter-spacing: .08em;
+      cursor: pointer
+    }
+
+    .ceo-sw {
+      position: relative;
+      width: 32px;
+      height: 17px;
+      background: rgba(255, 255, 255, .1);
+      border-radius: 10px;
+      cursor: pointer;
+      transition: .3s;
+      border: 1px solid var(--border)
+    }
+
+    .ceo-sw::after {
+      content: '';
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+      background: #666;
+      transition: .3s
+    }
+
+    .ceo-sw.on {
+      background: rgba(129, 140, 248, .25);
+      border-color: rgba(129, 140, 248, .5)
+    }
+
+    .ceo-sw.on::after {
+      left: 17px;
+      background: var(--accent);
+      box-shadow: 0 0 8px rgba(129, 140, 248, .5)
+    }
+
+    .ceo-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 9000;
+      background: var(--bg);
+      overflow: hidden;
+      display: none;
+      flex-direction: column
+    }
+
+    .ceo-overlay.on {
+      display: flex
+    }
+
+    .ceo-topbar {
+      height: 44px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 0 18px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(10, 12, 22, .9);
+      backdrop-filter: blur(20px);
+      flex-shrink: 0
+    }
+
+    .ceo-topbar .tb-title {
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: .12em;
+      color: var(--text)
+    }
+
+    .ceo-main {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1fr 320px;
+      overflow: hidden
+    }
+
+    .ceo-scroll {
+      overflow-y: auto;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px
+    }
+
+    .ceo-scroll::-webkit-scrollbar {
+      width: 4px
+    }
+
+    .ceo-scroll::-webkit-scrollbar-thumb {
+      background: var(--border2);
+      border-radius: 2px
+    }
+
+    .ceo-right {
+      border-left: 1px solid var(--border);
+      overflow-y: auto;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px
+    }
+
+    .ceo-right::-webkit-scrollbar {
+      width: 3px
+    }
+
+    .ceo-right::-webkit-scrollbar-thumb {
+      background: var(--border2);
+      border-radius: 2px
+    }
+
+    /* KPI */
+    .ck-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px
+    }
+
+    .ck {
+      background: rgba(255, 255, 255, .035);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px;
+      text-align: center;
+      transition: .2s
+    }
+
+    .ck:hover {
+      border-color: var(--border2);
+      transform: translateY(-1px)
+    }
+
+    .ck-label {
+      font-family: var(--mono);
+      font-size: 9px;
+      color: var(--muted);
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      margin-bottom: 5px
+    }
+
+    .ck-val {
+      font-size: 24px;
+      font-weight: 800;
+      letter-spacing: -.03em
+    }
+
+    .ck-delta {
+      font-family: var(--mono);
+      font-size: 10px;
+      margin-top: 4px
+    }
+
+    .ck-delta.up {
+      color: var(--green)
+    }
+
+    .ck-delta.down {
+      color: var(--red)
+    }
+
+    .ck-delta.flat {
+      color: var(--muted)
+    }
+
+    /* CARD */
+    .cc {
+      background: rgba(255, 255, 255, .035);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px;
+      transition: .2s
+    }
+
+    .cc:hover {
+      border-color: var(--border2)
+    }
+
+    .cc-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px
+    }
+
+    .cc-title {
+      font-size: 13px;
+      font-weight: 700
+    }
+
+    .cc-badge {
+      font-family: var(--mono);
+      font-size: 9px;
+      padding: 3px 8px;
+      border-radius: 8px;
+      background: rgba(167, 139, 250, .1);
+      color: var(--accent)
+    }
+
+    /* KANBAN */
+    .kanban {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      min-height: 200px
+    }
+
+    .kb-col {
+      background: rgba(255, 255, 255, .02);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px
+    }
+
+    .kb-col-title {
+      font-family: var(--mono);
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding: 4px 6px;
+      display: flex;
+      justify-content: space-between
+    }
+
+    .kb-col-title .cnt {
+      background: rgba(255, 255, 255, .08);
+      padding: 1px 6px;
+      border-radius: 8px;
+      font-size: 8px
+    }
+
+    .kb-card {
+      background: rgba(255, 255, 255, .05);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px;
+      font-size: 11px;
+      cursor: grab;
+      transition: .15s
+    }
+
+    .kb-card:hover {
+      border-color: var(--border2);
+      transform: translateY(-1px)
+    }
+
+    .kb-card .kb-pri {
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      margin-right: 4px
+    }
+
+    .kb-card .kb-meta {
+      font-family: var(--mono);
+      font-size: 9px;
+      color: var(--muted);
+      margin-top: 4px
+    }
+
+    /* 2-col grid */
+    .ceo-g2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px
+    }
+
+    /* TABS */
+    .ceo-tabs {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 14px
+    }
+
+    .ceo-tab {
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-family: var(--mono);
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--muted);
+      cursor: pointer;
+      transition: .15s;
+      border: 1px solid transparent
+    }
+
+    .ceo-tab:hover {
+      color: var(--text);
+      background: rgba(255, 255, 255, .04)
+    }
+
+    .ceo-tab.on {
+      color: var(--accent);
+      background: rgba(167, 139, 250, .08);
+      border-color: rgba(167, 139, 250, .2)
+    }
+
+    /* Quick action buttons */
+    .cqa {
+      padding: 6px 14px;
+      border-radius: 10px;
+      font-size: 11px;
+      font-weight: 600;
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, .03);
+      color: var(--text);
+      cursor: pointer;
+      transition: .2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px
+    }
+
+    .cqa:hover {
+      border-color: var(--accent);
+      background: rgba(167, 139, 250, .08);
+      transform: translateY(-1px)
+    }
+
+    /* Right panel sections */
+    .crp-section {
+      margin-bottom: 16px
+    }
+
+    .crp-title {
+      font-family: var(--mono);
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 8px
+    }
+
+    .crp-text {
+      font-size: 11.5px;
+      line-height: 1.6;
+      color: rgba(255, 255, 255, .7)
+    }
+
+    .crp-alert {
+      background: rgba(248, 113, 113, .06);
+      border: 1px solid rgba(248, 113, 113, .15);
+      border-radius: 10px;
+      padding: 10px 12px;
+      margin-bottom: 6px;
+      font-size: 11px
+    }
+
+    .crp-alert.warn {
+      background: rgba(251, 191, 36, .06);
+      border-color: rgba(251, 191, 36, .15)
+    }
+
+    .crp-alert.ok {
+      background: rgba(74, 222, 128, .06);
+      border-color: rgba(74, 222, 128, .15)
+    }
+
+    /* Promise item */
+    .cp-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 6px;
+      padding: 6px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, .04);
+      font-size: 11px
+    }
+
+    .cp-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      margin-top: 5px;
+      flex-shrink: 0
+    }
+
+    .cp-dot.overdue {
+      background: var(--red);
+      box-shadow: 0 0 6px rgba(248, 113, 113, .4)
+    }
+
+    .cp-dot.open {
+      background: var(--gold)
+    }
+
+    /* OKR bar */
+    .cokr-bar {
+      height: 5px;
+      border-radius: 3px;
+      background: rgba(255, 255, 255, .06);
+      overflow: hidden;
+      margin-top: 4px
+    }
+
+    .cokr-fill {
+      height: 100%;
+      border-radius: 3px;
+      transition: width .5s
+    }
+
+    /* Input row */
+    .ceo-input-wrap {
+      padding: 12px;
+      border-top: 1px solid var(--border);
+      margin-top: auto
+    }
+
+    .ceo-input {
+      width: 100%;
+      background: rgba(255, 255, 255, .04);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 14px;
+      color: var(--text);
+      font-family: 'Syne', sans-serif;
+      font-size: 12px;
+      outline: none;
+      resize: none
+    }
+
+    .ceo-input:focus {
+      border-color: var(--accent)
+    }
+
+    .ceo-input::placeholder {
+      color: var(--muted)
+    }
   </style>
 </head>
 
@@ -4324,6 +4773,10 @@
           <button class="tb-btn" onclick="runProtocol('full')"
             style="border-color:rgba(167,139,250,.35);color:var(--accent);background:rgba(167,139,250,.08)">⚡
             Sync</button>
+          <div class="ceo-toggle">
+            <label onclick="toggleCeoMode()">CEO</label>
+            <div class="ceo-sw" id="ceo-sw" onclick="toggleCeoMode()" title="Toggle CEO Command Center"></div>
+          </div>
         </div>
         <div class="hz-badge"><span id="hz-val2">0Hz</span> · <span id="api-txt2">offline</span></div>
       </div>
@@ -7344,6 +7797,758 @@ sys.stdout=_Cap(); sys.stderr=_Cap()
       // Expose
       window.blitzWSSend = wsSend;
       window.initBlitzWS = initWS;
+
+    })();
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+
+  <!-- ══════════════════════════════════════════════════════════════════════════ -->
+  <!-- CEO COMMAND CENTER OVERLAY                                                -->
+  <!-- ══════════════════════════════════════════════════════════════════════════ -->
+  <div class="ceo-overlay" id="ceo-overlay">
+    <div class="ceo-topbar">
+      <span style="font-size:16px">🎯</span>
+      <span class="tb-title">CEO COMMAND CENTER</span>
+      <div style="width:1px;height:14px;background:var(--border)"></div>
+      <span style="font-family:var(--mono);font-size:10px;color:var(--green)">● LIVE</span>
+      <span id="ceo-clock" style="font-family:var(--mono);font-size:10px;color:var(--muted);margin-left:8px"></span>
+      <div style="flex:1"></div>
+      <button class="cqa" onclick="ceoVoiceCmd()" id="ceo-voice-btn">🎤 Voice</button>
+      <button class="cqa" onclick="ceoBoardPrep()">📋 Board Prep</button>
+      <button class="cqa" onclick="ceoRefresh()">⟳ Refresh</button>
+      <button class="cqa" onclick="toggleCeoMode()" style="border-color:rgba(248,113,113,.3);color:var(--red)">✕
+        Close</button>
+    </div>
+    <div class="ceo-main">
+      <div class="ceo-scroll" id="ceo-content">
+        <!-- Tabs -->
+        <div class="ceo-tabs" id="ceo-nav">
+          <div class="ceo-tab on" onclick="ceoView('dashboard')">🎯 Dashboard</div>
+          <div class="ceo-tab" onclick="ceoView('kanban')">📋 Kanban</div>
+          <div class="ceo-tab" onclick="ceoView('financials')">📊 Financials</div>
+          <div class="ceo-tab" onclick="ceoView('okrs')">🏆 OKRs</div>
+          <div class="ceo-tab" onclick="ceoView('promises')">🤝 Promises</div>
+          <div class="ceo-tab" onclick="ceoView('competitors')">⚔️ Intel</div>
+          <div class="ceo-tab" onclick="ceoView('contacts')">👥 People</div>
+          <div class="ceo-tab" onclick="ceoView('workflows')">⚙️ Workflows</div>
+          <div class="ceo-tab" onclick="ceoView('habits')">📈 Habits</div>
+          <div class="ceo-tab" onclick="ceoView('google')">📧 Google</div>
+        </div>
+        <div id="ceo-view-area"><!-- JS fills this --></div>
+      </div>
+      <div class="ceo-right" id="ceo-right-panel">
+        <div class="crp-section">
+          <div class="crp-title">Today's Digest</div>
+          <div id="ceo-digest-text" class="crp-text">Loading...</div>
+        </div>
+        <div class="crp-section">
+          <div class="crp-title">Alerts</div>
+          <div id="ceo-alerts"></div>
+        </div>
+        <div class="crp-section">
+          <div class="crp-title">Promises</div>
+          <div id="ceo-promises-panel"></div>
+        </div>
+        <div class="ceo-input-wrap">
+          <textarea class="ceo-input" id="ceo-quick-input" rows="2" placeholder="Ask Jarvis..."
+            onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();ceoChatSend()}"></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      const T = localStorage.getItem('blitz_token') || '';
+      const AH = { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + T };
+      let _ceoOpen = false, _ceoView = 'dashboard';
+
+      // Clock
+      function ceoClk() { const d = new Date(); const el = document.getElementById('ceo-clock'); if (el) el.textContent = d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }) + ' · ' + d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }); }
+      setInterval(ceoClk, 30000);
+
+      // API
+      async function capi(path, method, body) {
+        try { const o = { method: method || 'GET', headers: AH }; if (body) o.body = JSON.stringify(body); const r = await fetch(path, o); if (r.status === 401) return null; return await r.json(); } catch (e) { console.error(e); return null; }
+      }
+
+      window.toggleCeoMode = function () {
+        _ceoOpen = !_ceoOpen;
+        document.getElementById('ceo-overlay').classList.toggle('on', _ceoOpen);
+        document.getElementById('ceo-sw').classList.toggle('on', _ceoOpen);
+        if (_ceoOpen) { ceoClk(); ceoView('dashboard'); ceoLoadRightPanel(); }
+      };
+      window.ceoRefresh = function () { ceoView(_ceoView); ceoLoadRightPanel(); };
+
+      // Helper
+      function esc(s) { return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, '<br>'); }
+      function fmt(n) { if (!n && n !== 0) return '—'; return Number(n).toLocaleString('en-US', { maximumFractionDigits: 0 }); }
+      const priColor = { urgent: 'var(--red)', high: '#fb923c', medium: 'var(--gold)', low: 'var(--green)' };
+
+      // View Router
+      window.ceoView = function (view) {
+        _ceoView = view;
+        document.querySelectorAll('#ceo-nav .ceo-tab').forEach(t => t.classList.remove('on'));
+        const tabs = document.querySelectorAll('#ceo-nav .ceo-tab');
+        tabs.forEach(t => { if (t.textContent.toLowerCase().includes(view.slice(0, 4))) t.classList.add('on'); });
+        const area = document.getElementById('ceo-view-area');
+        area.innerHTML = '<div style="padding:20px;font-family:var(--mono);font-size:11px;color:var(--muted)"><span style="display:inline-block;width:12px;height:12px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .6s linear infinite;margin-right:8px;vertical-align:middle"></span>Loading...</div>';
+        window['ceo_' + view]?.();
+      };
+
+      // ═══ DASHBOARD ═══
+      window.ceo_dashboard = async function () {
+        const area = document.getElementById('ceo-view-area');
+        const [fin, okrs, proms, hire, bio, goog] = await Promise.all([
+          capi('/api/ceo/financials'), capi('/api/ceo/okrs'), capi('/api/ceo/promises'), capi('/api/ceo/hiring'), capi('/api/ceo/biometrics?days=7'), capi('/api/google/status')
+        ]);
+        const cur = fin?.current || {}; const chg = fin?.mom_changes || {};
+        const p = proms?.promises || []; const overdue = p.filter(x => x.status === 'overdue');
+        const gConnected = goog?.connected || false;
+        const events = goog?.calendar?.events || [];
+        const unread = goog?.gmail?.unread_count || 0;
+        const now = new Date();
+        const greeting = now.getHours() < 12 ? 'Good morning' : now.getHours() < 17 ? 'Good afternoon' : 'Good evening';
+        const dateStr = now.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+
+        area.innerHTML = `
+      <div style="margin-bottom:6px">
+        <div style="font-size:20px;font-weight:800;letter-spacing:-.02em">${greeting}, Boss 👋</div>
+        <div style="font-family:var(--mono);font-size:10px;color:var(--muted);margin-top:2px">${dateStr} · ${overdue.length ? `<span style="color:var(--red)">${overdue.length} overdue</span> · ` : ''}${p.length} open commitments</div>
+      </div>
+      <div class="ck-row">
+        ${ckpi('MRR', '$' + fmt(cur.mrr), chg?.mrr)}
+        ${ckpi('Runway', (cur.runway_months || '—') + 'mo', null)}
+        ${ckpi('OKRs', (okrs?.avg_progress || 0) + '%', null)}
+        ${ckpi('Promises', p.length, null, overdue.length > 0)}
+      </div>
+      <div style="display:grid;grid-template-columns:${gConnected ? '1fr 1fr 1fr' : '1fr 1fr'};gap:12px">
+        <div class="cc"><div class="cc-head"><span class="cc-title">🏆 Active OKRs</span><span class="cc-badge">${okrs?.total || 0}</span></div>
+          ${(okrs?.objectives || []).slice(0, 3).map(o => `<div style="margin-bottom:8px"><div style="display:flex;justify-content:space-between;font-size:11px"><span>${esc(o.title)}</span><span style="font-family:var(--mono);font-weight:700;color:${{ on_track: 'var(--green)', at_risk: 'var(--gold)', behind: 'var(--red)', done: 'var(--blue)' }[o.status] || 'var(--muted)'}">${o.progress}%</span></div><div class="cokr-bar"><div class="cokr-fill" style="width:${o.progress}%;background:${{ on_track: 'var(--green)', at_risk: 'var(--gold)', behind: 'var(--red)', done: 'var(--blue)' }[o.status] || 'var(--accent)'}"></div></div></div>`).join('') || '<div style="color:var(--muted);font-size:11px">No OKRs — <a href="#" onclick="ceoView(\'okrs\');return false" style="color:var(--accent)">Create one</a></div>'}
+        </div>
+        <div class="cc"><div class="cc-head"><span class="cc-title">🏢 Hiring</span><span class="cc-badge">${hire?.open || 0} open</span></div>
+          ${(hire?.urgent || []).map(r => `<div style="font-size:11px;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.04)"><span style="color:var(--red)">🔴</span> ${esc(r.title)} — ${esc(r.department)}</div>`).join('') || (hire?.open ? `<div style="font-size:11px;color:var(--muted)">${hire.open} roles open, none urgent ✓</div>` : '<div style="color:var(--muted);font-size:11px">No hiring data</div>')}
+        </div>
+        ${gConnected ? `<div class="cc"><div class="cc-head"><span class="cc-title">📅 Today</span><span class="cc-badge" style="background:rgba(96,165,250,.1);color:var(--blue)">${events.length} events${unread ? ` · ${unread} ✉️` : ''}</span></div>
+          ${events.slice(0, 4).map(ev => {
+          let t = ev.start || '';
+          if (t.includes('T')) try { t = new Date(t).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }); } catch (e) { }
+          return `<div style="display:flex;gap:6px;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:11px"><span style="font-family:var(--mono);color:var(--accent);width:55px;flex-shrink:0">${t}</span><span>${esc(ev.title)}</span></div>`;
+        }).join('') || '<div style="color:var(--muted);font-size:11px">No events today ✓</div>'}
+        </div>` : ''}
+      </div>
+      <div class="cc"><div class="cc-head"><span class="cc-title">💓 Biometrics</span></div>
+        ${bio?.averages ? `<div class="ck-row" style="grid-template-columns:repeat(${Math.min(Object.keys(bio.averages).length, 6)},1fr)">${Object.entries(bio.averages).slice(0, 6).map(([k, v]) => `<div class="ck" style="padding:10px"><div class="ck-label">${esc(k)}</div><div class="ck-val" style="font-size:18px">${v}</div></div>`).join('')}</div>` : '<div style="color:var(--muted);font-size:11px">No biometric data. <button class="cqa" style="font-size:10px;padding:4px 10px" onclick="ceoAddSampleBio()">Add sample</button></div>'}
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="cqa" onclick="ceoView('kanban')">📋 Kanban Board</button>
+        <button class="cqa" onclick="ceoView('financials')">📊 Full Financials</button>
+        <button class="cqa" onclick="ceoView('competitors')">⚔️ Competitive Scan</button>
+        <button class="cqa" onclick="ceoView('contacts')">👥 People Intel</button>
+        ${!gConnected ? '<button class="cqa" onclick="ceoView(\'google\')" style="border-color:rgba(96,165,250,.3);color:var(--blue)">🔗 Connect Google</button>' : '<button class="cqa" onclick="ceoView(\'google\')" style="border-color:rgba(96,165,250,.3);color:var(--blue)">📧 Google Hub</button>'}
+        <button class="cqa" onclick="ceoAddSampleData()">⚡ Load Sample Data</button>
+      </div>`;
+      };
+      function ckpi(label, value, change, isAlert) {
+        let cls = 'flat', arrow = '';
+        if (change != null) { cls = change >= 0 ? 'up' : 'down'; arrow = change >= 0 ? '▲' : '▼'; }
+        return `<div class="ck"><div class="ck-label">${label}</div><div class="ck-val" style="${isAlert ? 'color:var(--red)' : ''}">${value}</div>${change != null ? `<div class="ck-delta ${cls}">${arrow} ${Math.abs(change)}%</div>` : '<div class="ck-delta flat">—</div>'}</div>`;
+      }
+
+      // ═══ KANBAN ═══
+      window.ceo_kanban = async function () {
+        const area = document.getElementById('ceo-view-area');
+        const [tasks, clients] = await Promise.all([capi('/api/tasks'), capi('/api/clients')]);
+        const t = tasks?.tasks || [];
+        const cols = { backlog: [], todo: [], in_progress: [], done: [] };
+        t.forEach(tk => { const s = (tk.status || 'todo').toLowerCase().replace(/\s/g, '_'); (cols[s] || cols.todo).push(tk); });
+        // Also pull client work if available
+        const cl = clients?.clients || [];
+
+        area.innerHTML = `
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <span style="font-size:14px;font-weight:700">📋 Kanban Board</span>
+        <button class="cqa" onclick="ceoAddTask()">+ Add Task</button>
+      </div>
+      <div class="kanban">
+        ${['backlog', 'todo', 'in_progress', 'done'].map(col => `
+          <div class="kb-col" data-col="${col}" ondragover="event.preventDefault()" ondrop="ceoDropTask(event,'${col}')">
+            <div class="kb-col-title"><span>${{ backlog: '📥 BACKLOG', todo: '📋 TO DO', in_progress: '⚡ IN PROGRESS', done: '✅ DONE' }[col]}</span><span class="cnt">${(cols[col] || []).length}</span></div>
+            ${(cols[col] || []).map(tk => `
+              <div class="kb-card" draggable="true" ondragstart="event.dataTransfer.setData('text','${esc(tk.id || tk.title)}')" data-task-id="${esc(tk.id || tk.title)}">
+                <span class="kb-pri" style="background:${priColor[tk.priority] || 'var(--muted)'}"></span>${esc(tk.title)}
+                <div class="kb-meta">${tk.priority || 'medium'}${tk.client ? ' · ' + esc(tk.client) : ''}${tk.due ? ' · ' + tk.due : ''}</div>
+              </div>`).join('')}
+          </div>`).join('')}
+      </div>
+      ${cl.length ? `<div class="cc" style="margin-top:16px"><div class="cc-head"><span class="cc-title">👥 Active Clients</span><span class="cc-badge">${cl.length}</span></div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px">${cl.slice(0, 8).map(c => `<div style="background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:10px;padding:10px;font-size:11px"><strong>${esc(c.name || c.id)}</strong><div style="font-family:var(--mono);font-size:9px;color:var(--muted);margin-top:2px">${esc(c.stack || '')} · ${c.goals ? esc(c.goals[0] || '') : ''}</div></div>`).join('')}</div>
+      </div>`: ''}`;
+      };
+      window.ceoDropTask = function (e, newStatus) { e.preventDefault();/* TODO: wire to API */ };
+      window.ceoAddTask = function () {
+        const title = prompt('Task title:'); if (!title) return;
+        const pri = prompt('Priority (urgent/high/medium/low):', 'medium');
+        capi('/api/tasks', 'POST', { title, priority: pri || 'medium', status: 'todo' }).then(() => ceo_kanban());
+      };
+
+      // ═══ FINANCIALS ═══
+      window.ceo_financials = async function () {
+        const area = document.getElementById('ceo-view-area');
+        const fin = await capi('/api/ceo/financials');
+        if (!fin || fin.message) { area.innerHTML = `<div style="text-align:center;padding:30px;color:var(--muted)"><div style="font-size:28px;margin-bottom:8px">📊</div>No financial data.<br><button class="cqa" style="margin-top:12px" onclick="ceoSeedAll()">⚡ Load Agency Data</button></div>`; return; }
+        const cur = fin.current || {}; const chg = fin.mom_changes || {};
+        // Get snapshots for chart
+        const snapshots = fin.all_snapshots || [];
+        area.innerHTML = `
+      ${fin.alert ? `<div class="crp-alert"><strong>🔴</strong> ${esc(fin.alert)}</div>` : ''}
+      ${fin.warning ? `<div class="crp-alert warn"><strong>⚠️</strong> ${esc(fin.warning)}</div>` : ''}
+      <div class="ck-row">${ckpi('MRR', '$' + fmt(cur.mrr), chg?.mrr)}${ckpi('ARR', '$' + fmt(cur.arr), chg?.arr)}${ckpi('Burn Rate', '$' + fmt(cur.burn_rate), chg?.burn_rate)}${ckpi('Runway', cur.runway_months + 'mo', null)}</div>
+      <div class="ck-row">${ckpi('Cash', '$' + fmt(cur.cash), null)}${ckpi('Headcount', cur.headcount || '—', chg?.headcount)}${ckpi('HC Cost', '$' + fmt(cur.headcount_cost), null)}${ckpi('Gross Margin', (cur.gross_margin || 0) + '%', null)}</div>
+      <div class="cc" style="padding:20px;margin-top:8px">
+        <div class="cc-title" style="margin-bottom:10px">📈 Financial Trend (6 Months)</div>
+        <canvas id="fin-chart" height="180"></canvas>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:4px">
+        <button class="cqa" onclick="ceoFinNarrative()">📝 Generate Narrative</button>
+        <button class="cqa" onclick="ceoEditFin()">✏️ Update KPIs</button>
+      </div>
+      <div id="ceo-fin-extra"></div>`;
+        // Render chart if we have historical data
+        if (typeof _renderFinChart === 'function') _renderFinChart(snapshots);
+      };
+      window.ceoFinNarrative = async function () {
+        const el = document.getElementById('ceo-fin-extra');
+        el.innerHTML = '<div class="cc" style="margin-top:8px"><div style="font-family:var(--mono);font-size:10px;color:var(--muted)">Generating narrative...</div></div>';
+        const d = await capi('/api/ceo/financials/narrative');
+        el.innerHTML = `<div class="cc" style="margin-top:8px"><div class="cc-title" style="margin-bottom:6px">📝 Financial Narrative</div><div class="crp-text">${esc(d?.narrative || 'Unavailable.')}</div></div>`;
+      };
+      window.ceoEditFin = function () {
+        const mrr = prompt('MRR ($):', '85000'); if (!mrr) return;
+        const arr = prompt('ARR ($):', (parseFloat(mrr) * 12) + '');
+        const burn = prompt('Burn rate ($):', '120000');
+        const runway = prompt('Runway (months):', '14');
+        const cash = prompt('Cash ($):', '1680000');
+        const hc = prompt('Headcount:', '18');
+        capi('/api/ceo/financials', 'POST', { mrr: +mrr, arr: +(arr || 0), burn_rate: +(burn || 0), runway_months: +(runway || 0), cash: +(cash || 0), headcount: +(hc || 0), headcount_cost: 0, gross_margin: 72 }).then(() => ceo_financials());
+      };
+      window.ceoAddSampleFin = function () {
+        capi('/api/ceo/financials', 'POST', { mrr: 85000, arr: 1020000, burn_rate: 120000, runway_months: 14, cash: 1680000, headcount: 18, headcount_cost: 95000, gross_margin: 72 }).then(() => ceo_financials());
+      };
+
+      // ═══ OKRs ═══
+      window.ceo_okrs = async function () {
+        const area = document.getElementById('ceo-view-area');
+        const data = await capi('/api/ceo/okrs');
+        const objs = data?.objectives || [];
+        const clr = { on_track: 'var(--green)', at_risk: 'var(--gold)', behind: 'var(--red)', done: 'var(--blue)' };
+        area.innerHTML = `
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <span style="font-size:14px;font-weight:700">🏆 OKR Tracker</span>
+        <button class="cqa" onclick="ceoAddOKR()">+ Add Objective</button>
+      </div>
+      ${objs.length ? `<div class="ck-row" style="grid-template-columns:repeat(4,1fr);margin-bottom:12px">${ckpi('Avg', data.avg_progress + '%', null)}${ckpi('On Track', data.on_track, null)}${ckpi('At Risk', data.at_risk, null)}${ckpi('Done', data.done, null)}</div>` : ''}
+      ${objs.map(o => `<div class="cc"><div class="cc-head"><span class="cc-title">${esc(o.title)}</span><span class="cc-badge" style="background:${clr[o.status] || 'var(--accent)'}22;color:${clr[o.status] || 'var(--muted)'}">${(o.status || '').toUpperCase()}</span></div>
+        <div class="cokr-bar" style="margin-bottom:8px"><div class="cokr-fill" style="width:${o.progress}%;background:${clr[o.status] || 'var(--accent)'}"></div></div>
+        <div style="font-family:var(--mono);font-size:10px;color:var(--muted);margin-bottom:8px">${o.progress}% — ${o.quarter || ''}</div>
+        ${(o.key_results || []).map(kr => `<div style="display:flex;justify-content:space-between;font-size:11px;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.04)"><span style="color:var(--muted)">${esc(kr.description)}</span><span style="font-family:var(--mono);font-weight:600">${kr.current}/${kr.target} ${kr.unit || ''}</span></div>`).join('')}
+      </div>`).join('') || '<div style="text-align:center;padding:20px;color:var(--muted)">No OKRs yet. <button class="cqa" style="margin-top:8px" onclick="ceoAddSampleOKR()">Add Sample OKR</button></div>'}`;
+      };
+      window.ceoAddOKR = function () {
+        const title = prompt('Objective title:'); if (!title) return;
+        capi('/api/ceo/okrs', 'POST', { title, key_results: [{ description: 'Key result 1', target: 100, current: 0, unit: '%' }] }).then(() => ceo_okrs());
+      };
+      window.ceoAddSampleOKR = function () {
+        capi('/api/ceo/okrs', 'POST', {
+          title: 'Increase ARR to $1.5M', quarter: 'Q1 2026', key_results: [
+            { description: 'Close 5 enterprise deals', target: 5, current: 2, unit: 'deals' },
+            { description: 'Reduce churn below 3%', target: 3, current: 4.2, unit: '%' },
+            { description: 'Launch self-serve tier', target: 100, current: 65, unit: '%' }
+          ]
+        }).then(() => ceo_okrs());
+      };
+
+      // ═══ PROMISES ═══
+      window.ceo_promises = async function () {
+        const area = document.getElementById('ceo-view-area');
+        const data = await capi('/api/ceo/promises');
+        const p = data?.promises || [];
+        area.innerHTML = `
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <span style="font-size:14px;font-weight:700">🤝 Commitments Tracker</span>
+        <div style="display:flex;gap:6px"><button class="cqa" onclick="ceoAddPromise()">+ Add</button><button class="cqa" onclick="ceoExtractPromises()">🧠 Extract from Transcript</button></div>
+      </div>
+      ${p.length ? p.map(pr => `<div class="cc" style="padding:12px"><div class="cp-item" style="border:none;padding:0"><div class="cp-dot ${pr.status}"></div><div style="flex:1"><div style="font-size:12px">${esc(pr.what)}</div><div style="font-family:var(--mono);font-size:9px;color:var(--muted);margin-top:2px">${esc(pr.promised_by)} → ${esc(pr.promised_to)}${pr.due_date ? ' · due ' + pr.due_date : ''} · ${pr.status}</div></div>${pr.status !== 'fulfilled' ? `<button class="cqa" style="font-size:9px;padding:3px 8px" onclick="ceoFulfill('${pr.id}')">✓</button>` : ''}</div></div>`).join('') : '<div style="text-align:center;padding:20px;color:var(--muted)">No open commitments. <button class="cqa" style="margin-top:8px" onclick="ceoAddSamplePromise()">Add Sample</button></div>'}`;
+      };
+      window.ceoFulfill = function (id) { capi('/api/ceo/promises/fulfill', 'POST', { promise_id: id }).then(() => ceo_promises()); };
+      window.ceoAddPromise = function () {
+        const what = prompt('What was promised?'); if (!what) return;
+        const by = prompt('Promised by:', 'CEO'); const to = prompt('Promised to:');
+        const due = prompt('Due date (YYYY-MM-DD, or leave blank):');
+        capi('/api/ceo/promises', 'POST', { promised_by: by || 'CEO', promised_to: to || 'Unknown', what, due_date: due || '', context: '' }).then(() => ceo_promises());
+      };
+      window.ceoExtractPromises = function () {
+        const transcript = prompt('Paste meeting transcript (or key excerpt):');
+        if (!transcript) return;
+        capi('/api/ceo/promises/extract', 'POST', { transcript }).then(d => { alert(`Extracted ${d?.extracted || 0} commitments.`); ceo_promises(); });
+      };
+      window.ceoAddSamplePromise = function () {
+        Promise.all([
+          capi('/api/ceo/promises', 'POST', { promised_by: 'CEO', promised_to: 'Board', what: 'Deliver Q1 revenue projections by March 5', due_date: '2026-03-05', context: 'Board meeting' }),
+          capi('/api/ceo/promises', 'POST', { promised_by: 'CTO', promised_to: 'CEO', what: 'Complete security audit before launch', due_date: '2026-02-28', context: '1:1' })
+        ]).then(() => ceo_promises());
+      };
+
+      // ═══ COMPETITORS ═══
+      window.ceo_competitors = async function () {
+        const area = document.getElementById('ceo-view-area');
+        const data = await capi('/api/ceo/competitors');
+        const comps = data?.competitors || [];
+        area.innerHTML = `
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <span style="font-size:14px;font-weight:700">⚔️ Competitive Intelligence</span>
+        <button class="cqa" onclick="ceoAddComp()">+ Add Competitor</button>
+      </div>
+      ${comps.map(c => `<div class="cc"><div class="cc-head"><span class="cc-title">${esc(c.name)}</span><button class="cqa" style="font-size:10px;padding:3px 10px" onclick="ceoScanComp('${esc(c.name)}','${esc(c.domain || '')}')">🔍 Scan</button></div>
+        <div style="font-family:var(--mono);font-size:10px;color:var(--muted)">${c.domain || ''} · ${c.industry || ''}</div>
+        ${(c.intel || []).slice(-1).map(i => `<div class="crp-text" style="margin-top:6px">${esc(i.synthesis || 'No intel.')}</div>`).join('') || '<div style="font-size:11px;color:var(--muted);margin-top:4px">Click Scan to gather intelligence.</div>'}
+      </div>`).join('') || '<div style="text-align:center;padding:20px;color:var(--muted)">No competitors tracked. <button class="cqa" style="margin-top:8px" onclick="ceoAddSampleComp()">Add Samples</button></div>'}
+      <div id="ceo-scan-result"></div>`;
+      };
+      window.ceoScanComp = async function (name, domain) {
+        const el = document.getElementById('ceo-scan-result');
+        el.innerHTML = '<div class="cc" style="margin-top:8px"><div style="font-family:var(--mono);font-size:10px;color:var(--muted)">Scanning ' + name + '...</div></div>';
+        const d = await capi('/api/ceo/competitors/scan', 'POST', { name, domain });
+        el.innerHTML = d?.synthesis ? `<div class="cc" style="margin-top:8px;border-color:rgba(251,191,36,.2)"><div class="cc-title">🔍 ${esc(name)}</div><div class="crp-text" style="margin-top:6px">${esc(d.synthesis)}</div></div>` : `<div class="crp-alert warn">Scan unavailable. Check Tavily API key.</div>`;
+      };
+      window.ceoAddComp = function () { const n = prompt('Competitor name:'); if (!n) return; const d = prompt('Domain (optional):'); capi('/api/ceo/competitors', 'POST', { name: n, domain: d || '', industry: '' }).then(() => ceo_competitors()); };
+      window.ceoAddSampleComp = function () { Promise.all([capi('/api/ceo/competitors', 'POST', { name: 'OpenAI', domain: 'openai.com', industry: 'AI' }), capi('/api/ceo/competitors', 'POST', { name: 'Anthropic', domain: 'anthropic.com', industry: 'AI' })]).then(() => ceo_competitors()); };
+
+      // ═══ CONTACTS / PEOPLE ═══
+      window.ceo_contacts = async function () {
+        const area = document.getElementById('ceo-view-area');
+        const [ctc, org, hire] = await Promise.all([capi('/api/ceo/contacts'), capi('/api/ceo/org'), capi('/api/ceo/hiring')]);
+        const contacts = ctc?.contacts || []; const depts = org?.departments || {};
+        area.innerHTML = `
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <span style="font-size:14px;font-weight:700">👥 People & Org</span>
+        <div style="display:flex;gap:6px"><button class="cqa" onclick="ceoAddContact()">+ Contact</button><button class="cqa" onclick="ceoAddMember()">+ Team Member</button><button class="cqa" onclick="ceoAddRole()">+ Open Role</button></div>
+      </div>
+      <div class="ck-row" style="grid-template-columns:repeat(3,1fr)">${ckpi('Headcount', org?.total_headcount || 0, null)}${ckpi('Open Reqs', hire?.open || 0, null)}${ckpi('Contacts', contacts.length, null)}</div>
+      <div class="ceo-g2">
+        <div class="cc"><div class="cc-title" style="margin-bottom:8px">Key Contacts</div>
+          ${contacts.slice(0, 6).map(c => `<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.04);cursor:pointer" onclick="ceoBriefContact('${esc(c.id)}')">
+            <div style="width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,var(--accent),#22d3ee);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff">${(c.name || '?')[0]}</div>
+            <div><div style="font-size:11px;font-weight:600">${esc(c.name)}</div><div style="font-family:var(--mono);font-size:9px;color:var(--muted)">${esc(c.role)} @ ${esc(c.company)}</div></div>
+          </div>`).join('') || '<div style="color:var(--muted);font-size:11px">No contacts. <a href="#" onclick="ceoAddSampleContact();return false" style="color:var(--accent)">Add sample</a></div>'}
+        </div>
+        <div class="cc"><div class="cc-title" style="margin-bottom:8px">Departments</div>
+          ${Object.entries(depts).map(([d, m]) => `<div style="display:flex;justify-content:space-between;font-size:11px;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.04)"><span>${esc(d)}</span><span style="font-family:var(--mono);color:var(--muted)">${m.length}</span></div>`).join('') || '<div style="color:var(--muted);font-size:11px">No team data.</div>'}
+        </div>
+      </div>
+      <div id="ceo-briefing-card"></div>`;
+      };
+      window.ceoBriefContact = async function (id) {
+        const el = document.getElementById('ceo-briefing-card');
+        el.innerHTML = '<div class="cc" style="margin-top:8px"><div style="font-family:var(--mono);font-size:10px;color:var(--muted)">Generating stakeholder briefing...</div></div>';
+        const d = await capi('/api/ceo/contacts/briefing', 'POST', { contact_id: id, meeting_topic: 'General check-in' });
+        el.innerHTML = `<div class="cc" style="margin-top:8px;border-color:rgba(96,165,250,.2)"><div class="cc-title">📋 Pre-Meeting Briefing</div><div class="crp-text" style="margin-top:6px">${esc(d?.briefing || 'Unavailable.')}</div></div>`;
+      };
+      window.ceoAddContact = function () { const n = prompt('Name:'); if (!n) return; const r = prompt('Role:'); const co = prompt('Company:'); capi('/api/ceo/contacts', 'POST', { contact_id: n.toLowerCase().replace(/\s+/g, '_'), name: n, role: r || '', company: co || '' }).then(() => ceo_contacts()); };
+      window.ceoAddMember = function () { const n = prompt('Name:'); if (!n) return; const r = prompt('Role:'); const d = prompt('Department:'); capi('/api/ceo/org', 'POST', { employee_id: n.toLowerCase().replace(/\s+/g, '_'), name: n, role: r || '', department: d || 'General' }).then(() => ceo_contacts()); };
+      window.ceoAddRole = function () { const t = prompt('Role title:'); if (!t) return; const d = prompt('Department:'); const p = prompt('Priority (urgent/high/normal):', 'normal'); capi('/api/ceo/hiring', 'POST', { title: t, department: d || 'General', priority: p || 'normal' }).then(() => ceo_contacts()); };
+      window.ceoAddSampleContact = function () { capi('/api/ceo/contacts', 'POST', { contact_id: 'john_smith', name: 'John Smith', role: 'Managing Partner', company: 'Sequoia Capital', relationship: 'Lead investor' }).then(() => ceo_contacts()); };
+
+      // ═══ WORKFLOWS ═══
+      window.ceo_workflows = async function () {
+        const area = document.getElementById('ceo-view-area');
+        const [wf, tr] = await Promise.all([capi('/api/ceo/workflows'), capi('/api/ceo/triggers')]);
+        area.innerHTML = `
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <span style="font-size:14px;font-weight:700">⚙️ Workflows & Triggers</span>
+        <div style="display:flex;gap:6px"><button class="cqa" onclick="ceoAddWorkflow()">+ Workflow</button><button class="cqa" onclick="ceoAddTrigger()">+ Trigger</button></div>
+      </div>
+      <div class="ceo-g2">
+        <div class="cc"><div class="cc-title" style="margin-bottom:8px">Workflows (${(wf?.workflows || []).length})</div>
+          ${(wf?.workflows || []).map(w => `<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.04)"><span>⚙️</span><span style="font-size:11px;font-weight:600;flex:1">${esc(w.name)}</span><span style="font-family:var(--mono);font-size:9px;background:rgba(255,255,255,.06);padding:2px 6px;border-radius:4px;color:var(--muted)">${esc(w.trigger)}</span></div>`).join('') || '<div style="color:var(--muted);font-size:11px"><button class="cqa" style="font-size:10px" onclick="ceoAddSampleWF()">Add Sample Workflow</button></div>'}
+        </div>
+        <div class="cc"><div class="cc-title" style="margin-bottom:8px">Triggers (${(tr?.triggers || []).length})</div>
+          ${(tr?.triggers || []).map(t => `<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.04)"><span>⚡</span><span style="font-size:11px;font-weight:600;flex:1">${esc(t.name)}</span><span style="font-family:var(--mono);font-size:9px;color:var(--muted)">${esc(t.condition)}</span></div>`).join('') || '<div style="color:var(--muted);font-size:11px">No triggers set.</div>'}
+        </div>
+      </div>`;
+      };
+      window.ceoAddWorkflow = function () { const n = prompt('Workflow name:'); if (!n) return; const t = prompt('Trigger (e.g. after_board_meeting, daily_9am):'); const s = prompt('Steps (comma separated):'); capi('/api/ceo/workflows', 'POST', { name: n, trigger: t || 'manual', steps: (s || '').split(',').map(x => x.trim()).filter(Boolean) }).then(() => ceo_workflows()); };
+      window.ceoAddTrigger = function () { const n = prompt('Trigger name:'); if (!n) return; const c = prompt('Condition:'); const a = prompt('Action:'); capi('/api/ceo/triggers', 'POST', { name: n, condition: c || '', action: a || '' }).then(() => ceo_workflows()); };
+      window.ceoAddSampleWF = function () { Promise.all([capi('/api/ceo/workflows', 'POST', { name: 'Post-Board Meeting', trigger: 'after_board_meeting', steps: ['Send summary to board members', 'Update investor doc', 'Create action items', 'Schedule follow-ups'] }), capi('/api/ceo/triggers', 'POST', { name: 'Revenue Drop Alert', condition: 'revenue_drops', action: 'Alert CEO', threshold: 10 })]).then(() => ceo_workflows()); };
+
+      // ═══ SAMPLE DATA LOADER ═══
+      window.ceoAddSampleData = async function () {
+        await Promise.all([
+          capi('/api/ceo/financials', 'POST', { mrr: 85000, arr: 1020000, burn_rate: 120000, runway_months: 14, cash: 1680000, headcount: 18, headcount_cost: 95000, gross_margin: 72 }),
+          capi('/api/ceo/okrs', 'POST', { title: 'Increase ARR to $1.5M', quarter: 'Q1 2026', key_results: [{ description: 'Close 5 enterprise deals', target: 5, current: 2, unit: 'deals' }, { description: 'Reduce churn below 3%', target: 3, current: 4.2, unit: '%' }, { description: 'Launch self-serve tier', target: 100, current: 65, unit: '%' }] }),
+          capi('/api/ceo/promises', 'POST', { promised_by: 'CEO', promised_to: 'Board', what: 'Deliver Q1 revenue projections', due_date: '2026-03-05' }),
+          capi('/api/ceo/promises', 'POST', { promised_by: 'CTO', promised_to: 'CEO', what: 'Complete security audit', due_date: '2026-02-28' }),
+          capi('/api/ceo/contacts', 'POST', { contact_id: 'john_smith', name: 'John Smith', role: 'Managing Partner', company: 'Sequoia Capital', relationship: 'Lead investor' }),
+          capi('/api/ceo/competitors', 'POST', { name: 'OpenAI', domain: 'openai.com', industry: 'AI' }),
+        ]);
+        ceoView('dashboard'); ceoLoadRightPanel();
+      };
+      window.ceoAddSampleBio = function () { capi('/api/ceo/biometrics', 'POST', { source: 'whoop', data: { hrv: 45, recovery: 72, sleep_score: 81, strain: 12.4, resting_hr: 58 } }).then(() => ceo_dashboard()); };
+
+      // ═══ GOOGLE INTEGRATION ═══
+      window.ceo_google = async function () {
+        const area = document.getElementById('ceo-view-area');
+        const status = await capi('/api/google/status');
+        const connected = status?.connected || false;
+
+        if (!connected) {
+          area.innerHTML = `
+            <div style="text-align:center;padding:40px">
+              <div style="font-size:40px;margin-bottom:16px">🔗</div>
+              <div style="font-size:16px;font-weight:700;margin-bottom:8px">Connect Google</div>
+              <div style="font-size:12px;color:var(--muted);margin-bottom:20px;max-width:400px;margin-left:auto;margin-right:auto">
+                Connect your Google account to sync Calendar, Gmail, and Tasks directly into your CEO dashboard.
+              </div>
+              ${status?.auth_url ? `<button class="cqa" style="font-size:13px;padding:10px 24px" onclick="window.open('${status.auth_url}','google_auth','width=500,height=700')">🔑 Connect Google Account</button>` :
+              `<div class="crp-alert warn">
+                <strong>Setup Required:</strong> Add your Google OAuth credentials to <code>.env</code>:<br>
+                <code style="font-size:10px">GOOGLE_CLIENT_ID=your_id</code><br>
+                <code style="font-size:10px">GOOGLE_CLIENT_SECRET=your_secret</code><br>
+                <span style="font-size:10px">Create at <a href="https://console.cloud.google.com/apis/credentials" target="_blank" style="color:var(--accent)">console.cloud.google.com</a></span>
+              </div>`}
+            </div>`;
+          return;
+        }
+
+        // Connected — show data
+        const [cal, gmail, tasks] = await Promise.all([
+          capi('/api/google/calendar?days=3'),
+          capi('/api/google/gmail'),
+          capi('/api/google/tasks')
+        ]);
+        const events = cal?.events || [];
+        const emails = gmail?.top_emails || [];
+        const gtasks = tasks?.tasks || [];
+
+        area.innerHTML = `
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+            <span style="font-size:14px;font-weight:700">📧 Google Integration</span>
+            <div style="display:flex;gap:6px;align-items:center">
+              <span style="font-family:var(--mono);font-size:10px;color:var(--green)">● Connected</span>
+              <button class="cqa" style="font-size:10px;border-color:rgba(248,113,113,.3);color:var(--red)" onclick="ceoDisconnectGoogle()">Disconnect</button>
+            </div>
+          </div>
+          <div class="ck-row" style="grid-template-columns:repeat(3,1fr)">
+            ${ckpi('Calendar', events.length + ' events', null)}
+            ${ckpi('Unread', gmail?.unread_count || 0, null)}
+            ${ckpi('Tasks', gtasks.length, null)}
+          </div>
+          <div class="ceo-g2">
+            <div class="cc"><div class="cc-head"><span class="cc-title">📅 Calendar (Next 3 Days)</span></div>
+              ${events.slice(0, 8).map(ev => {
+          let t = ev.start || '';
+          if (t.includes('T')) try { t = new Date(t).toLocaleString('en-US', { weekday: 'short', hour: '2-digit', minute: '2-digit' }); } catch (e) { }
+          return `<div style="display:flex;gap:8px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:11px">
+                    <span style="font-family:var(--mono);font-size:10px;color:var(--accent);width:80px;flex-shrink:0">${t}</span>
+                    <div><div style="font-weight:600">${esc(ev.title)}</div>${ev.location ? `<div style="font-size:9px;color:var(--muted)">📍 ${esc(ev.location)}</div>` : ''}${ev.attendees?.length ? `<div style="font-size:9px;color:var(--muted)">${ev.attendees.length} attendees</div>` : ''}</div>
+                  </div>`;
+        }).join('') || '<div style="color:var(--muted);font-size:11px">No upcoming events</div>'}
+            </div>
+            <div class="cc"><div class="cc-head"><span class="cc-title">📬 Gmail — Unread (${gmail?.unread_count || 0})</span></div>
+              ${emails.slice(0, 6).map(em => `
+                <div style="padding:6px 0;border-bottom:1px solid rgba(255,255,255,.04)">
+                  <div style="font-size:11px;font-weight:600">${esc(em.subject)}</div>
+                  <div style="font-family:var(--mono);font-size:9px;color:var(--muted)">${esc((em.from || '').split('<')[0].trim())}</div>
+                  <div style="font-size:10px;color:var(--muted);margin-top:2px">${esc(em.snippet?.slice(0, 100))}</div>
+                </div>`).join('') || '<div style="color:var(--muted);font-size:11px">Inbox zero! 🎉</div>'}
+            </div>
+          </div>
+          ${gtasks.length ? `<div class="cc"><div class="cc-head"><span class="cc-title">✅ Google Tasks</span></div>
+            ${gtasks.slice(0, 8).map(t => `<div style="display:flex;gap:6px;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:11px">
+              <span style="color:var(--muted)">☐</span><span>${esc(t.title)}</span>
+              ${t.due ? `<span style="font-family:var(--mono);font-size:9px;color:var(--muted);margin-left:auto">${t.due.split('T')[0]}</span>` : ''}
+            </div>`).join('')}
+          </div>` : ''}`;
+      };
+      window.ceoDisconnectGoogle = async function () {
+        await capi('/api/google/disconnect', 'POST');
+        ceo_google();
+      };
+
+      // ═══ HABITS / PERSONAL DEVELOPMENT ═══
+      let _habitsChart = null;
+      window.ceo_habits = async function () {
+        const area = document.getElementById('ceo-view-area');
+        const data = await capi('/api/ceo/habits?months=6');
+        const months = data?.months || [];
+        const habits = data?.habits || {};
+        const hids = Object.keys(habits);
+
+        if (!hids.length) {
+          area.innerHTML = `<div style="text-align:center;padding:30px;color:var(--muted)">
+            <div style="font-size:32px;margin-bottom:8px">📈</div>
+            <div style="font-size:14px;font-weight:700;margin-bottom:8px">Personal Development Tracker</div>
+            <div style="font-size:12px;margin-bottom:16px">Track 5 daily habits and watch your accuracy grow over time.</div>
+            <button class="cqa" onclick="ceoSeedAll()">⚡ Load Sample Data (includes habits)</button>
+          </div>`;
+          return;
+        }
+
+        const colors = ['#a78bfa', '#4ade80', '#60a5fa', '#fbbf24', '#fb7185'];
+        const labels = months.map(m => {
+          const [y, mo] = m.split('-');
+          return new Date(y, mo - 1).toLocaleDateString('en-US', { month: 'short', year: '2-digit' });
+        });
+
+        area.innerHTML = `
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+            <span style="font-size:14px;font-weight:700">📈 Personal Development</span>
+            <button class="cqa" onclick="ceoLogHabitToday()">✓ Log Today</button>
+          </div>
+          <div class="cc" style="padding:20px">
+            <div class="cc-title" style="margin-bottom:10px">Monthly Accuracy Trend</div>
+            <canvas id="habits-chart" height="200"></canvas>
+          </div>
+          <div class="ck-row" style="grid-template-columns:repeat(${Math.min(hids.length, 5)},1fr);margin-top:12px">
+            ${hids.map((hid, i) => {
+          const h = habits[hid];
+          const latest = h.data?.[h.data.length - 1];
+          const prev = h.data?.[h.data.length - 2];
+          const acc = latest?.accuracy || 0;
+          const delta = prev ? acc - prev.accuracy : 0;
+          return `<div class="ck" style="border-left:3px solid ${colors[i % 5]}">
+                <div class="ck-label">${h.icon} ${h.name}</div>
+                <div class="ck-val" style="font-size:20px">${acc}%</div>
+                <div class="ck-delta ${delta >= 0 ? 'up' : 'down'}">${delta >= 0 ? '▲' : '▼'} ${Math.abs(delta)}%</div>
+              </div>`;
+        }).join('')}
+          </div>`;
+
+        // Render Chart.js
+        setTimeout(() => {
+          const ctx = document.getElementById('habits-chart');
+          if (!ctx || typeof Chart === 'undefined') return;
+          if (_habitsChart) _habitsChart.destroy();
+          _habitsChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+              labels: labels,
+              datasets: hids.map((hid, i) => ({
+                label: habits[hid].icon + ' ' + habits[hid].name,
+                data: (habits[hid].data || []).map(d => d.accuracy),
+                borderColor: colors[i % 5],
+                backgroundColor: colors[i % 5] + '22',
+                fill: true,
+                tension: 0.4,
+                pointRadius: 4,
+                pointHoverRadius: 6,
+                borderWidth: 2,
+              }))
+            },
+            options: {
+              responsive: true,
+              plugins: {
+                legend: { position: 'bottom', labels: { color: 'rgba(255,255,255,.6)', font: { size: 10, family: 'Space Mono' } } },
+              },
+              scales: {
+                y: { min: 0, max: 100, ticks: { color: 'rgba(255,255,255,.4)', font: { size: 10 }, callback: v => v + '%' }, grid: { color: 'rgba(255,255,255,.05)' } },
+                x: { ticks: { color: 'rgba(255,255,255,.4)', font: { size: 10 } }, grid: { color: 'rgba(255,255,255,.05)' } }
+              }
+            }
+          });
+        }, 100);
+      };
+      window.ceoLogHabitToday = async function () {
+        const habits = (await capi('/api/ceo/habits?months=1'))?.habits || {};
+        const hids = Object.keys(habits);
+        for (const hid of hids) {
+          const done = confirm(`Did you complete "${habits[hid].name}" today?`);
+          await capi('/api/ceo/habits/log', 'POST', { habit_id: hid, done });
+        }
+        ceo_habits();
+      };
+
+      // ═══ FINANCIAL CHART ═══
+      let _finChart = null;
+      window._renderFinChart = function (snapshots) {
+        setTimeout(() => {
+          const ctx = document.getElementById('fin-chart');
+          if (!ctx || typeof Chart === 'undefined' || !snapshots?.length) return;
+          if (_finChart) _finChart.destroy();
+          const labels = snapshots.map(s => s.period);
+          _finChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+              labels,
+              datasets: [
+                { label: 'MRR ($)', data: snapshots.map(s => s.mrr || 0), borderColor: '#a78bfa', backgroundColor: '#a78bfa22', fill: true, tension: 0.4, borderWidth: 2, yAxisID: 'y' },
+                { label: 'Cash ($)', data: snapshots.map(s => s.cash || 0), borderColor: '#4ade80', backgroundColor: '#4ade8022', fill: true, tension: 0.4, borderWidth: 2, yAxisID: 'y' },
+                { label: 'Headcount', data: snapshots.map(s => s.headcount || 0), borderColor: '#60a5fa', tension: 0.4, borderWidth: 2, yAxisID: 'y1' },
+              ]
+            },
+            options: {
+              responsive: true,
+              interaction: { mode: 'index', intersect: false },
+              plugins: { legend: { position: 'bottom', labels: { color: 'rgba(255,255,255,.6)', font: { size: 10, family: 'Space Mono' } } } },
+              scales: {
+                y: { position: 'left', ticks: { color: 'rgba(255,255,255,.4)', font: { size: 9 }, callback: v => '$' + (v / 1000).toFixed(0) + 'k' }, grid: { color: 'rgba(255,255,255,.05)' } },
+                y1: { position: 'right', ticks: { color: 'rgba(255,255,255,.4)', font: { size: 9 } }, grid: { display: false } },
+                x: { ticks: { color: 'rgba(255,255,255,.4)', font: { size: 9 } }, grid: { color: 'rgba(255,255,255,.05)' } }
+              }
+            }
+          });
+        }, 100);
+      };
+
+      // ═══ VOICE COMMAND ═══
+      let _ceoListening = false;
+      window.ceoVoiceCmd = function () {
+        if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+          alert('Speech recognition not supported in this browser. Use Chrome.');
+          return;
+        }
+        const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+        const recognition = new SR();
+        recognition.continuous = false;
+        recognition.interimResults = false;
+        recognition.lang = 'en-US';
+
+        const btn = document.getElementById('ceo-voice-btn');
+        btn.style.borderColor = 'rgba(248,113,113,.5)';
+        btn.style.color = 'var(--red)';
+        btn.textContent = '🔴 Listening...';
+        _ceoListening = true;
+
+        recognition.onresult = async function (event) {
+          const transcript = event.results[0][0].transcript;
+          btn.textContent = '🎤 Voice';
+          btn.style.borderColor = '';
+          btn.style.color = '';
+          _ceoListening = false;
+
+          // Show what was said
+          const inp = document.getElementById('ceo-quick-input');
+          inp.value = transcript;
+
+          // Process command
+          const lower = transcript.toLowerCase();
+          if (lower.includes('dashboard') || lower.includes('home')) { ceoView('dashboard'); }
+          else if (lower.includes('kanban') || lower.includes('tasks') || lower.includes('board')) { ceoView('kanban'); }
+          else if (lower.includes('money') || lower.includes('financial') || lower.includes('revenue')) { ceoView('financials'); }
+          else if (lower.includes('okr') || lower.includes('goal') || lower.includes('objective')) { ceoView('okrs'); }
+          else if (lower.includes('promise') || lower.includes('commitment')) { ceoView('promises'); }
+          else if (lower.includes('compet') || lower.includes('intel')) { ceoView('competitors'); }
+          else if (lower.includes('people') || lower.includes('team') || lower.includes('contact') || lower.includes('org')) { ceoView('contacts'); }
+          else if (lower.includes('habit') || lower.includes('development') || lower.includes('growth')) { ceoView('habits'); }
+          else if (lower.includes('google') || lower.includes('email') || lower.includes('calendar')) { ceoView('google'); }
+          else if (lower.includes('refresh') || lower.includes('update')) { ceoRefresh(); }
+          else if (lower.includes('close') || lower.includes('exit')) { toggleCeoMode(); }
+          else {
+            // Send to AI chat
+            ceoChatSend();
+          }
+        };
+        recognition.onerror = function () {
+          btn.textContent = '🎤 Voice';
+          btn.style.borderColor = '';
+          btn.style.color = '';
+          _ceoListening = false;
+        };
+        recognition.onend = function () {
+          if (_ceoListening) {
+            btn.textContent = '🎤 Voice';
+            btn.style.borderColor = '';
+            btn.style.color = '';
+            _ceoListening = false;
+          }
+        };
+        recognition.start();
+      };
+
+      // ═══ AUTO-SEED ON FIRST OPEN ═══
+      let _seeded = false;
+      const _origToggle = window.toggleCeoMode;
+      window.toggleCeoMode = function () {
+        _origToggle();
+        if (!_seeded && document.getElementById('ceo-overlay').classList.contains('on')) {
+          _seeded = true;
+          capi('/api/ceo/seed', 'POST').then(d => {
+            if (d?.seeded?.length > 0) {
+              console.log('[CEO] Auto-seeded:', d.seeded);
+              ceoView('dashboard');
+              ceoLoadRightPanel();
+            }
+          });
+        }
+      };
+
+      // Update sample data button to use seed
+      window.ceoSeedAll = async function () {
+        const area = document.getElementById('ceo-view-area');
+        area.innerHTML = '<div style="padding:20px;font-family:var(--mono);font-size:11px;color:var(--muted)">Loading agency data...</div>';
+        await capi('/api/ceo/seed', 'POST');
+        ceoView('dashboard');
+        ceoLoadRightPanel();
+      };
+      window.ceoAddSampleData = window.ceoSeedAll;
+
+      // ═══ BOARD PREP ═══
+      window.ceoBoardPrep = async function () {
+        const area = document.getElementById('ceo-view-area');
+        area.innerHTML = '<div style="padding:20px;font-family:var(--mono);font-size:11px;color:var(--muted)">Generating board briefing document...</div>';
+        const d = await capi('/api/ceo/board-briefing');
+        area.innerHTML = `<div class="cc" style="border-color:rgba(167,139,250,.2)"><div class="cc-head"><span class="cc-title">📋 Board Briefing Document</span><span class="cc-badge">AUTO-GENERATED</span></div><div class="crp-text" style="margin-top:6px">${esc(d?.briefing || 'Failed to generate.')}</div></div>`;
+      };
+
+      // ═══ RIGHT PANEL ═══
+      async function ceoLoadRightPanel() {
+        const [digest, proms, goog] = await Promise.all([capi('/api/ceo/digest'), capi('/api/ceo/promises'), capi('/api/google/status')]);
+        document.getElementById('ceo-digest-text').innerHTML = esc(digest?.digest || 'No digest available. Load sample data to get started.');
+        // Alerts
+        const alerts = document.getElementById('ceo-alerts');
+        let ah = '';
+        const fin = digest?.components?.financials || {};
+        if (fin.alert) ah += `<div class="crp-alert">🔴 ${esc(fin.alert)}</div>`;
+        if (fin.warning) ah += `<div class="crp-alert warn">⚠️ ${esc(fin.warning)}</div>`;
+        const overdue = (proms?.promises || []).filter(p => p.status === 'overdue');
+        overdue.forEach(p => { ah += `<div class="crp-alert">🔴 Overdue: ${esc(p.what)}</div>`; });
+        // Gmail unread
+        if (goog?.gmail?.unread_count > 0) {
+          ah += `<div class="crp-alert warn" style="cursor:pointer" onclick="ceoView('google')">📬 ${goog.gmail.unread_count} unread email(s)</div>`;
+        }
+        alerts.innerHTML = ah || '<div class="crp-alert ok" style="color:var(--green)">✅ No active alerts</div>';
+        // Promises panel
+        const pp = document.getElementById('ceo-promises-panel');
+        const allp = proms?.promises || [];
+        let ppHtml = allp.slice(0, 4).map(p => `<div class="cp-item"><div class="cp-dot ${p.status}"></div><div><div style="font-size:11px">${esc(p.what?.slice(0, 60))}</div><div style="font-family:var(--mono);font-size:9px;color:var(--muted)">${p.due_date || 'no date'} · ${p.status}</div></div></div>`).join('') || '<div style="font-size:11px;color:var(--muted)">No open commitments ✅</div>';
+        // Google Calendar in sidebar
+        if (goog?.connected && goog?.calendar?.events?.length) {
+          ppHtml += `<div style="margin-top:12px"><div class="crp-title" style="margin-top:8px">📅 Today's Schedule</div>`;
+          ppHtml += goog.calendar.events.slice(0, 4).map(ev => {
+            let t = ev.start || '';
+            if (t.includes('T')) try { t = new Date(t).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }); } catch (e) { }
+            return `<div style="display:flex;gap:6px;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:10px"><span style="font-family:var(--mono);color:var(--accent);width:55px;flex-shrink:0">${t}</span><span>${esc(ev.title)}</span></div>`;
+          }).join('');
+          ppHtml += `</div>`;
+        } else if (!goog?.connected) {
+          ppHtml += `<div style="margin-top:12px;font-size:10px;color:var(--muted)">📅 <a href="#" onclick="ceoView('google');return false" style="color:var(--accent)">Connect Google</a> for calendar</div>`;
+        }
+        pp.innerHTML = ppHtml;
+      }
+
+      // ═══ CHAT ═══
+      window.ceoChatSend = async function () {
+        const inp = document.getElementById('ceo-quick-input');
+        const text = inp.value.trim(); if (!text) return;
+        inp.value = ''; inp.placeholder = 'Processing...';
+        const d = await capi('/api/command', 'POST', { text, active_modules: ['ceo'], use_history: false });
+        inp.placeholder = 'Ask Jarvis...';
+        if (d?.response) {
+          const area = document.getElementById('ceo-view-area');
+          area.innerHTML = `<div class="cc" style="border-color:rgba(167,139,250,.2)"><div class="cc-head"><span class="cc-title">💬 Jarvis</span></div><div class="crp-text">${esc(d.response)}</div></div>`;
+        }
+      };
 
     })();
   </script>

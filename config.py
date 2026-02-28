@@ -27,6 +27,13 @@ class _Config:
     OPENWEATHER_API_KEY: str = os.getenv("OPENWEATHER_API_KEY", "")
     USER_CITY:           str = os.getenv("USER_CITY", "Singapore")
 
+    # ── CEO / Enterprise integrations ──────────────────────────────────────
+    CEO_DATA_DIR:       str = os.getenv("CEO_DATA_DIR", "ceo_data")
+    USER_NAME:          str = os.getenv("USER_NAME", "Boss")
+    USER_COMPANY:       str = os.getenv("USER_COMPANY", "")
+    USER_ROLE:          str = os.getenv("USER_ROLE", "CEO")
+    COMPANY_INDUSTRY:   str = os.getenv("COMPANY_INDUSTRY", "")
+
     # ── Security ───────────────────────────────────────────────────────────────
     BLITZ_PASSPHRASE:   str = os.getenv("BLITZ_PASSPHRASE", "blitz-jarvis-2025")
     BLITZ_SECRET_KEY:   str = os.getenv("BLITZ_SECRET_KEY", "change-me-in-production")
@@ -95,6 +102,13 @@ RULES:
             "You are in VOICE mode. Responses will be spoken aloud, so keep them natural, "
             "conversational, and concise. Avoid markdown, bullet points, or symbols. "
             "Speak as if talking directly to the user."
+        ),
+        "ceo": (
+            "You are in CEO MODE. You are a hyper-intelligent chief of staff and strategic advisor to the CEO. "
+            "You surface only what requires executive judgment. Protect their time. Prioritize leverage. "
+            "Speak in first-person executive voice when drafting or summarizing. "
+            "Decisions, risks, competitive moves, commitments, and team health are your primary signals. "
+            "Be direct, analytical, and boardroom-ready. Never waste words."
         ),
         "none": (
             "You are in GENERAL mode. Be helpful, direct, and conversational."
