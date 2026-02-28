@@ -7,10 +7,49 @@ services:
     pythonVersion: "3.11"
     buildCommand: pip install -r requirements.txt
     startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/status
+    autoDeploy: true
     envVars:
+      # ── Required ────────────────────────────────────────
       - key: GROQ_API_KEY
         sync: false
       - key: TAVILY_API_KEY
         sync: false
-    healthCheckPath: /
-    autoDeploy: true
+      - key: BLITZ_PASSPHRASE
+        sync: false
+      - key: BLITZ_SECRET_KEY
+        sync: false
+
+      # ── Voice (set when you have an ElevenLabs key) ────
+      - key: ELEVENLABS_API_KEY
+        sync: false
+      - key: ELEVENLABS_VOICE_ID
+        value: 21m00Tcm4TlvDq8ikWAM
+
+      # ── Embeddings — Jina AI (free, replaces OpenAI) ───
+      - key: JINA_API_KEY
+        sync: false
+      - key: JINA_MODEL
+        value: jina-embeddings-v2-base-en
+      - key: EMBEDDING_DIM
+        value: "768"
+
+      # ── Vector Memory — Pinecone (optional) ────────────
+      - key: PINECONE_API_KEY
+        sync: false
+      - key: PINECONE_INDEX
+        value: blitz-memory
+
+      # ── Proactive Intel (optional) ──────────────────────
+      - key: OPENWEATHER_API_KEY
+        sync: false
+      - key: USER_CITY
+        value: Singapore
+
+      # ── Agency OS directories ───────────────────────────
+      - key: CLIENTS_DIR
+        value: clients
+      - key: AGENCY_DIR
+        value: agency
+      - key: CODEBASE_INDEX_PATH
+        value: codebase_index.json

@@ -36,7 +36,10 @@ from memory_engine import (
 )
 
 # ── Proactive Cron ────────────────────────────────────────────────────────────
-from proactive import get_briefing_context, start_cron
+from proactive import (
+    get_briefing_context, start_cron, get_full_briefing,
+    add_task, complete_task, get_pending_tasks, get_tasks_summary
+)
 
 # ── ElevenLabs TTS (optional) ─────────────────────────────────────────────────
 ELEVEN_API_KEY  = os.getenv("ELEVENLABS_API_KEY", "")
@@ -144,6 +147,62 @@ async def login(req: LoginRequest):
 @app.get("/api/me")
 async def me(request: Request, _=Depends(require_auth)):
     return {"status": "authenticated"}
+
+# ── Status & Briefing Endpoints ───────────────────────────────────────────────
+@app.get("/api/status")
+async def api_status():
+    """Health check + feature availability. Used by frontend on load."""
+    return {
+        "status":        "online",
+        "version":       "5.0.0",
+        "tts_available": _eleven_available,
+        "memory":        "pinecone" if os.getenv("PINECONE_API_KEY") else "json",
+        "embeddings":    "jina" if os.getenv("JINA_API_KEY") else "keyword",
+        "weather":       bool(os.getenv("OPENWEATHER_API_KEY")),
+        "calendar":      bool(os.getenv("GOOGLE_CREDENTIALS_JSON")),
+    }
+
+@app.get("/api/briefing")
+async def api_briefing(_=Depends(require_auth)):
+    """
+    Full morning briefing: weather + news + tasks + calendar.
+    Called by frontend on load to populate the briefing panel.
+    """
+    return get_full_briefing()
+
+@app.post("/api/briefing/refresh")
+async def api_briefing_refresh(_=Depends(require_auth)):
+    """Force-regenerate the briefing (e.g. when user manually refreshes)."""
+    from proactive import generate_morning_briefing
+    asyncio.create_task(generate_morning_briefing())
+    return {"status": "refreshing", "message": "Briefing will update in ~5 seconds"}
+
+# ── Task Endpoints ────────────────────────────────────────────────────────────
+class TaskCreate(BaseModel):
+    title: str
+    due: str = ""          # YYYY-MM-DD or 'today' / 'tomorrow'
+    priority: str = "medium"  # low / medium / high / urgent
+    client_id: str = ""
+
+class TaskComplete(BaseModel):
+    task_id: str   # id or partial title
+
+@app.get("/api/tasks")
+async def api_get_tasks(_=Depends(require_auth)):
+    """Return all pending tasks sorted by priority."""
+    return {"tasks": get_pending_tasks(20), "summary": get_tasks_summary()}
+
+@app.post("/api/tasks")
+async def api_add_task(req: TaskCreate, _=Depends(require_auth)):
+    """Add a task. Voice: tell BLITZ 'add task X due tomorrow' and it calls this."""
+    task = add_task(req.title, req.due, req.priority, req.client_id)
+    return {"status": "created", "task": task}
+
+@app.post("/api/tasks/complete")
+async def api_complete_task(req: TaskComplete, _=Depends(require_auth)):
+    """Mark a task as done by id or partial title match."""
+    ok = complete_task(req.task_id)
+    return {"status": "done" if ok else "not_found", "task_id": req.task_id}
 
 # ── Intent Detection ──────────────────────────────────────────────────────────
 INTENT_PATTERNS = {

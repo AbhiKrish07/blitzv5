@@ -2090,6 +2090,12 @@ Response: Sure, opening Wikipedia for quantum entanglement.
 For research questions, provide a thorough answer AND optionally spawn relevant sources.
 Always be helpful, sharp, and direct.`;
 
+    // ── Get auth token (same as main app) ────────────────────
+    function getToken() {
+      return localStorage.getItem('blitz_token') ||
+        document.cookie.split(';').map(c => c.trim()).find(c => c.startsWith('blitz_token='))?.split('=')[1] || '';
+    }
+
     async function sendNexus() {
       const inp = document.getElementById('b-inp');
       const text = inp.value.trim();
@@ -2102,7 +2108,10 @@ Always be helpful, sharp, and direct.`;
       try {
         const r = await fetch(`${API}/api/command`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${getToken()}`
+          },
           body: JSON.stringify({ text, active_modules: ['research'], system_override: NEXUS_SYSTEM }),
           signal: AbortSignal.timeout(20000)
         });
@@ -2251,7 +2260,15 @@ Always be helpful, sharp, and direct.`;
         try {
           var prevCtx = context.map(function (c) { return c.name + ': ' + c.text; }).join('\n\n');
           var fp = persona.prompt + '\n\nTopic: "' + topic + '"\n\n' + (prevCtx ? 'Previous panelists:\n' + prevCtx + '\n\nYour perspective:' : 'You speak first:');
-          var r = await fetch(API + '/api/command', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text: fp, active_modules: ['research'] }), signal: AbortSignal.timeout(25000) });
+          var r = await fetch(API + '/api/command', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer ' + getToken()
+            },
+            body: JSON.stringify({ text: fp, active_modules: ['research'] }),
+            signal: AbortSignal.timeout(25000)
+          });
           var d = await r.json(); response = d.response || '';
         } catch (e) { response = simulateRt(persona, topic, context); }
         context.push({ name: persona.name, text: response });
