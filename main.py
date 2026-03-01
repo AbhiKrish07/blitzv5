@@ -1961,6 +1961,219 @@ async def api_seed_data(_=Depends(require_auth)):
     if not _ceo_ok: raise HTTPException(503)
     return seed_agency_data()
 
+# ══════════════════════════════════════════════════════════════════════════════
+# VOICE ENGINE — Jarvis-grade voice pipeline (TTS, wake word, intent routing)
+# ══════════════════════════════════════════════════════════════════════════════
+_voice_ok = False
+try:
+    from voice_engine import (
+        process_voice_command, synthesize_speech, synthesize_speech_streaming,
+        get_voice_session, classify_intent, strip_wake_word,
+        contains_wake_word, is_stop_command, format_jarvis_response,
+        WAKE_WORDS,
+    )
+    _voice_ok = True
+    print("[OK] Voice engine loaded")
+except Exception as _ve:
+    print(f"[WARN] Voice engine not loaded: {_ve}")
+
+class VoiceCommandRequest(BaseModel):
+    text: str
+    include_audio: bool = True
+    voice: str = "en-US-GuyNeural"
+    system_context: str = ""
+
+class TTSRequest(BaseModel):
+    text: str
+    voice: str = "en-US-GuyNeural"
+
+@app.post("/api/voice/command")
+async def api_voice_command(req: VoiceCommandRequest, _=Depends(require_auth)):
+    """
+    Process a voice command transcript:
+    1. Strip wake word
+    2. Classify intent (nav / action / query)
+    3. Route to AI if needed
+    4. Return response + optional TTS audio (base64 mp3)
+    """
+    if not _voice_ok:
+        # Graceful degraded mode — still try to answer via Groq
+        text = req.text.strip()
+        try:
+            resp = await groq_client.chat.completions.create(
+                model="llama-3.1-8b-instant",
+                messages=[
+                    {"role": "system", "content": "You are B.L.I.T.Z., a Jarvis-like AI. Keep answers short (2-3 sentences). No markdown."},
+                    {"role": "user", "content": text}
+                ],
+                max_tokens=120, temperature=0.4
+            )
+            return {"response": resp.choices[0].message.content.strip(), "intent": "query:general", "tts_available": False}
+        except Exception as e:
+            return {"error": str(e), "response": "Voice engine unavailable.", "tts_available": False}
+
+    result = await process_voice_command(
+        req.text,
+        groq_client=groq_client,
+        system_context=req.system_context
+    )
+    if not req.include_audio:
+        result.pop("audio_b64", None)
+    return result
+
+@app.post("/api/voice/tts")
+async def api_tts(req: TTSRequest, _=Depends(require_auth)):
+    """Synthesize text → MP3 audio bytes (base64 encoded)."""
+    import base64
+    if not _voice_ok:
+        return JSONResponse(503, content={"error": "Voice engine not loaded"})
+    audio = await synthesize_speech(req.text, voice=req.voice)
+    if not audio:
+        return JSONResponse(503, content={"error": "TTS unavailable — install edge-tts"})
+    return {
+        "audio_b64": base64.b64encode(audio).decode(),
+        "audio_mime": "audio/mpeg",
+        "chars": len(req.text),
+    }
+
+@app.get("/api/voice/tts/stream")
+async def api_tts_stream(text: str, voice: str = "en-US-GuyNeural", _=Depends(require_auth)):
+    """Stream TTS audio directly as mp3 (for <audio> src or fetch)."""
+    from fastapi.responses import StreamingResponse
+    if not _voice_ok:
+        return JSONResponse(503, content={"error": "Voice engine not loaded"})
+    async def gen():
+        async for chunk in synthesize_speech_streaming(text, voice=voice):
+            yield chunk
+    return StreamingResponse(gen(), media_type="audio/mpeg")
+
+@app.get("/api/voice/status")
+async def api_voice_status(_=Depends(require_auth)):
+    """Voice engine status + session info."""
+    if not _voice_ok:
+        return {"available": False, "tts": "none", "wake_words": ["hey blitz", "jarvis"]}
+    session = get_voice_session()
+    return {
+        "available": True,
+        **session.to_dict(),
+    }
+
+@app.post("/api/voice/intent")
+async def api_voice_intent(req: VoiceCommandRequest, _=Depends(require_auth)):
+    """Classify text intent without full AI call (fast, no TTS)."""
+    if not _voice_ok:
+        return {"intent": "query:general", "text": req.text}
+    cleaned = strip_wake_word(req.text)
+    intent = classify_intent(cleaned)
+    is_wake = contains_wake_word(req.text)
+    is_stop = is_stop_command(cleaned)
+    return {
+        "text": req.text,
+        "cleaned": cleaned,
+        "intent": intent,
+        "has_wake_word": is_wake,
+        "is_stop": is_stop,
+        "nav_target": intent.split(":", 1)[1] if intent.startswith("nav:") else None,
+        "action": intent.split(":", 1)[1] if intent.startswith("action:") else None,
+    }
+
+@app.websocket("/ws/voice")
+async def ws_voice(ws: WebSocket, token: str = ""):
+    """
+    Real-time voice WebSocket session.
+    Client sends: {"type": "transcript", "text": "...", "include_audio": true}
+    Server sends: {"type": "response", "response": "...", "audio_b64": "...", "nav_target": "...", "intent": "..."}
+    """
+    if not token or not verify_token(token):
+        await ws.close(code=4001)
+        return
+
+    await ws.accept()
+    session = get_voice_session() if _voice_ok else None
+    if session:
+        session.active = True
+        session.listening = True
+
+    await ws.send_json({
+        "type": "connected",
+        "message": "B.L.I.T.Z. voice channel active. Say 'Hey Blitz' or 'Jarvis' to begin.",
+        "wake_words": WAKE_WORDS if _voice_ok else ["hey blitz", "jarvis"],
+    })
+
+    try:
+        while True:
+            data = await asyncio.wait_for(ws.receive_json(), timeout=120)
+            msg_type = data.get("type", "transcript")
+
+            if msg_type == "ping":
+                await ws.send_json({"type": "pong"})
+                continue
+
+            if msg_type == "stop":
+                if session:
+                    session.active = False
+                await ws.send_json({"type": "stopped", "message": "Voice session ended."})
+                break
+
+            if msg_type in ("transcript", "text"):
+                text = data.get("text", "").strip()
+                if not text:
+                    continue
+
+                include_audio = data.get("include_audio", True)
+
+                # Presence of wake word check (if client sends raw continuous transcript)
+                if data.get("require_wake_word") and _voice_ok and not contains_wake_word(text):
+                    await ws.send_json({"type": "no_wake_word", "text": text})
+                    continue
+
+                # Stop command check
+                if _voice_ok and is_stop_command(text):
+                    await ws.send_json({"type": "stop_ack", "message": "Understood."})
+                    continue
+
+                # Send "thinking" indicator
+                await ws.send_json({"type": "thinking", "text": text})
+
+                # Process full pipeline
+                if _voice_ok:
+                    result = await process_voice_command(
+                        text, groq_client=groq_client,
+                        system_context=data.get("context", "")
+                    )
+                    if not include_audio:
+                        result.pop("audio_b64", None)
+                    await ws.send_json({"type": "response", **result})
+                else:
+                    # Degraded: just Groq, no TTS
+                    try:
+                        r = await groq_client.chat.completions.create(
+                            model="llama-3.1-8b-instant",
+                            messages=[
+                                {"role": "system", "content": "You are B.L.I.T.Z., Jarvis-like AI. Short answers, no markdown."},
+                                {"role": "user", "content": text}
+                            ],
+                            max_tokens=150, temperature=0.4
+                        )
+                        resp = r.choices[0].message.content.strip()
+                    except Exception:
+                        resp = "I'm sorry, boss. Something went wrong."
+                    await ws.send_json({"type": "response", "response": resp, "intent": "query:general"})
+
+    except asyncio.TimeoutError:
+        await ws.send_json({"type": "timeout", "message": "Voice session timed out due to inactivity."})
+    except WebSocketDisconnect:
+        pass
+    except Exception as e:
+        try:
+            await ws.send_json({"type": "error", "message": str(e)})
+        except Exception:
+            pass
+    finally:
+        if session:
+            session.active = False
+            session.listening = False
+
 _CLEAN_ROUTES = {"hub": "blitz_hub.html", "forge": "forge.html", "canvas": "canvas.html", "nexus": "nexus.html", "studio": "studio.html", "jarvis": "jarvis_hud.html"}
 for _route, _file in _CLEAN_ROUTES.items():
     _fpath = _HTML_DIR / _file

@@ -705,7 +705,7 @@ def get_financial_dashboard() -> dict:
     latest = snapshots[-1]
     prev = snapshots[-2] if len(snapshots) >= 2 else {}
     
-    dashboard = {"current": latest, "period": latest.get("period"), "snapshots": len(snapshots)}
+    dashboard = {"current": latest, "period": latest.get("period"), "snapshots": len(snapshots), "all_snapshots": snapshots}
     
     # Calculate MoM changes
     if prev:
